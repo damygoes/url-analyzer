@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: url_analyzer_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: url_analyzer
+      MYSQL_USER: analyzer_user
+      MYSQL_PASSWORD: analyzer_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./migrations:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+
+  adminer:
+    image: adminer:4.8.1
+    container_name: url_analyzer_adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+
+volumes:
+  mysql_data:
