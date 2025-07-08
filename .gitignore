@@ -1,0 +1,6 @@
+#ENVs
+.env
+.env.local
+
+# Qodo
+.qodo
