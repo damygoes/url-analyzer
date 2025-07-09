@@ -14,12 +14,14 @@ type Repository struct {
 	db *sqlx.DB
 }
 
+// creates a new repository instance
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{db: db}
 }
 
 // URL operations
 
+// creates a new URL record
 func (r *Repository) CreateURL(url string) (*models.URL, error) {
 	query := `
 		INSERT INTO urls (url, status) 
@@ -39,6 +41,7 @@ func (r *Repository) CreateURL(url string) (*models.URL, error) {
 	return r.GetURLByID(int(id))
 }
 
+// retrieves a URL by its ID
 func (r *Repository) GetURLByID(id int) (*models.URL, error) {
 	var url models.URL
 	query := `
@@ -58,7 +61,7 @@ func (r *Repository) GetURLByID(id int) (*models.URL, error) {
 	return &url, nil
 }
 
-// GetURLByURL retrieves a URL by its URL string
+// retrieves a URL by its URL string
 func (r *Repository) GetURLByURL(urlStr string) (*models.URL, error) {
 	var url models.URL
 	query := `
@@ -78,6 +81,7 @@ func (r *Repository) GetURLByURL(urlStr string) (*models.URL, error) {
 	return &url, nil
 }
 
+// retrieves URLs with pagination and filtering
 func (r *Repository) ListURLs(filter models.URLFilter) ([]models.URLWithResult, int, error) {
 	// Build WHERE clause
 	var whereClauses []string
@@ -89,7 +93,7 @@ func (r *Repository) ListURLs(filter models.URLFilter) ([]models.URLWithResult, 
 	}
 	
 	if filter.Search != "" {
-		whereClauses = append(whereClauses, "(u.url LIKE ? OR cr.title LIKE ?)")
+		whereClauses = append(whereClauses, "(u.url LIKE ? OR COALESCE(cr.title, '') LIKE ?)")
 		searchTerm := "%" + filter.Search + "%"
 		args = append(args, searchTerm, searchTerm)
 	}
@@ -111,13 +115,13 @@ func (r *Repository) ListURLs(filter models.URLFilter) ([]models.URLWithResult, 
 		case "url", "status", "created_at", "updated_at":
 			orderBy = fmt.Sprintf("u.%s %s", filter.SortBy, direction)
 		case "title":
-			orderBy = fmt.Sprintf("cr.title %s", direction)
+			orderBy = fmt.Sprintf("COALESCE(cr.title, '') %s", direction)
 		case "internal_links":
-			orderBy = fmt.Sprintf("cr.internal_links %s", direction)
+			orderBy = fmt.Sprintf("COALESCE(cr.internal_links, 0) %s", direction)
 		case "external_links":
-			orderBy = fmt.Sprintf("cr.external_links %s", direction)
+			orderBy = fmt.Sprintf("COALESCE(cr.external_links, 0) %s", direction)
 		case "broken_links_count":
-			orderBy = fmt.Sprintf("cr.broken_links_count %s", direction)
+			orderBy = fmt.Sprintf("COALESCE(cr.broken_links_count, 0) %s", direction)
 		}
 	}
 	
@@ -135,15 +139,12 @@ func (r *Repository) ListURLs(filter models.URLFilter) ([]models.URLWithResult, 
 		return nil, 0, fmt.Errorf("failed to count URLs: %w", err)
 	}
 	
-	// Get paginated results
+	// Get paginated results - Split into two queries for simplicity
 	offset := (filter.Page - 1) * filter.PageSize
 	
-	query := fmt.Sprintf(`
-		SELECT 
-			u.id, u.url, u.status, u.error_message, u.created_at, u.updated_at,
-			cr.id as crawl_id, cr.title, cr.html_version, cr.h1_count, cr.h2_count, 
-			cr.h3_count, cr.h4_count, cr.h5_count, cr.h6_count, cr.internal_links, 
-			cr.external_links, cr.broken_links_count, cr.has_login_form, cr.crawled_at
+	// get the URLs
+	urlQuery := fmt.Sprintf(`
+		SELECT DISTINCT u.id, u.url, u.status, u.error_message, u.created_at, u.updated_at
 		FROM urls u
 		LEFT JOIN crawl_results cr ON u.id = cr.url_id
 		%s
@@ -153,36 +154,21 @@ func (r *Repository) ListURLs(filter models.URLFilter) ([]models.URLWithResult, 
 	
 	args = append(args, filter.PageSize, offset)
 	
-	rows, err := r.db.Query(query, args...)
+	var urls []models.URL
+	err = r.db.Select(&urls, urlQuery, args...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to list URLs: %w", err)
 	}
-	defer rows.Close()
 	
+	// get crawl results for these URLs
 	var results []models.URLWithResult
-	for rows.Next() {
-		var result models.URLWithResult
-		var crawlResult models.CrawlResult
-		var crawlID sql.NullInt64
+	for _, url := range urls {
+		result := models.URLWithResult{URL: url}
 		
-		err := rows.Scan(
-			&result.ID, &result.URL, &result.Status, &result.ErrorMessage, 
-			&result.CreatedAt, &result.UpdatedAt,
-			&crawlID, &crawlResult.Title, &crawlResult.HTMLVersion, 
-			&crawlResult.H1Count, &crawlResult.H2Count, &crawlResult.H3Count, 
-			&crawlResult.H4Count, &crawlResult.H5Count, &crawlResult.H6Count, 
-			&crawlResult.InternalLinks, &crawlResult.ExternalLinks, 
-			&crawlResult.BrokenLinksCount, &crawlResult.HasLoginForm, 
-			&crawlResult.CrawledAt,
-		)
-		if err != nil {
-			return nil, 0, fmt.Errorf("failed to scan URL result: %w", err)
-		}
-		
-		if crawlID.Valid {
-			crawlResult.ID = int(crawlID.Int64)
-			crawlResult.URLID = result.ID
-			result.CrawlResult = &crawlResult
+		// Get the latest crawl result for this URL
+		crawlResult, err := r.GetCrawlResultByURLID(url.ID)
+		if err == nil {
+			result.CrawlResult = crawlResult
 		}
 		
 		results = append(results, result)
@@ -191,6 +177,7 @@ func (r *Repository) ListURLs(filter models.URLFilter) ([]models.URLWithResult, 
 	return results, total, nil
 }
 
+// updates the status of a URL
 func (r *Repository) UpdateURLStatus(id int, status models.URLStatus, errorMessage *string) error {
 	query := `
 		UPDATE urls 
@@ -206,6 +193,7 @@ func (r *Repository) UpdateURLStatus(id int, status models.URLStatus, errorMessa
 	return nil
 }
 
+// deletes a URL and its related data
 func (r *Repository) DeleteURL(id int) error {
 	query := `DELETE FROM urls WHERE id = ?`
 	
@@ -226,6 +214,7 @@ func (r *Repository) DeleteURL(id int) error {
 	return nil
 }
 
+// deletes multiple URLs
 func (r *Repository) DeleteURLs(ids []int) error {
 	if len(ids) == 0 {
 		return nil
@@ -249,9 +238,9 @@ func (r *Repository) DeleteURLs(ids []int) error {
 	return nil
 }
 
-
 // Crawl Result operations
 
+// creates a new crawl result
 func (r *Repository) CreateCrawlResult(result *models.CrawlResult) error {
 	query := `
 		INSERT INTO crawl_results (
@@ -280,6 +269,7 @@ func (r *Repository) CreateCrawlResult(result *models.CrawlResult) error {
 	return nil
 }
 
+// retrieves the crawl result for a URL
 func (r *Repository) GetCrawlResultByURLID(urlID int) (*models.CrawlResult, error) {
 	var result models.CrawlResult
 	query := `
@@ -305,6 +295,7 @@ func (r *Repository) GetCrawlResultByURLID(urlID int) (*models.CrawlResult, erro
 
 // Broken Links operations
 
+// creates multiple broken link records
 func (r *Repository) CreateBrokenLinks(crawlResultID int, brokenLinks []models.BrokenLink) error {
 	if len(brokenLinks) == 0 {
 		return nil
@@ -331,6 +322,7 @@ func (r *Repository) CreateBrokenLinks(crawlResultID int, brokenLinks []models.B
 	return tx.Commit()
 }
 
+// retrieves broken links for a URL
 func (r *Repository) GetBrokenLinksByURLID(urlID int) ([]models.BrokenLink, error) {
 	query := `
 		SELECT bl.id, bl.crawl_result_id, bl.url, bl.status_code, bl.error_message
@@ -351,6 +343,7 @@ func (r *Repository) GetBrokenLinksByURLID(urlID int) ([]models.BrokenLink, erro
 
 // User/Auth operations
 
+// retrieves a user by API key
 func (r *Repository) GetUserByAPIKey(apiKey string) (*models.User, error) {
 	var user models.User
 	query := `
