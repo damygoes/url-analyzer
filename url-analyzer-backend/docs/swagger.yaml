@@ -1,5 +1,15 @@
 basePath: /api
 definitions:
+  internal_handlers.DeleteURLsRequest:
+    properties:
+      ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+    required:
+    - ids
+    type: object
   url-analyzer_internal_models.CreateURLRequest:
     properties:
       url:
@@ -55,6 +65,48 @@ paths:
       summary: Health check
       tags:
       - System
+  /jobs:
+    get:
+      description: Returns a list of currently active crawl jobs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Active jobs
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get active crawl jobs
+      tags:
+      - System
+  /jobs/cleanup:
+    post:
+      description: Cleans up completed or stale jobs from the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Jobs cleaned up successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to clean up jobs
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Clean up old/finished jobs
+      tags:
+      - System
   /stats:
     get:
       consumes:
@@ -79,6 +131,40 @@ paths:
       tags:
       - System
   /urls:
+    delete:
+      consumes:
+      - application/json
+      description: Delete multiple URLs by their IDs
+      parameters:
+      - description: List of URL IDs to delete
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.DeleteURLsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: URLs deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request format
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Delete multiple URLs
+      tags:
+      - URLs
     get:
       consumes:
       - application/json
@@ -259,6 +345,45 @@ paths:
       summary: Get detailed information about a URL
       tags:
       - URLs
+  /urls/{id}/restart:
+    put:
+      consumes:
+      - application/json
+      description: Restart the crawling process for a specific URL
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Crawl restarted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid URL ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: URL not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Restart a crawl for a URL
+      tags:
+      - Crawl Control
   /urls/{id}/start:
     put:
       consumes:
@@ -301,6 +426,89 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Start crawling a URL
+      tags:
+      - Crawl Control
+  /urls/{id}/status:
+    get:
+      consumes:
+      - application/json
+      description: Get the current status of a crawl job for a specific URL
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Crawl job status
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid URL ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No active crawl job found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get the status of a crawl job
+      tags:
+      - Crawl Control
+  /urls/{id}/stop:
+    put:
+      consumes:
+      - application/json
+      description: Stop the crawling process for a specific URL
+      parameters:
+      - description: URL ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Crawl stopped successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid URL ID
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: No active crawl job found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Crawl job already finished
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Stop crawling a URL
       tags:
       - Crawl Control
 securityDefinitions:

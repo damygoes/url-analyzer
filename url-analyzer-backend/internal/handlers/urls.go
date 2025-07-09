@@ -236,6 +236,19 @@ func (h *URLHandler) StartCrawl(c *gin.Context) {
 }
 
 // StopCrawl handles PUT /api/urls/:id/stop
+// @Summary Stop crawling a URL
+// @Description Stop the crawling process for a specific URL
+// @Tags Crawl Control
+// @Accept json
+// @Produce json
+// @Param id path int true "URL ID"
+// @Success 200 {object} map[string]interface{} "Crawl stopped successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid URL ID"
+// @Failure 404 {object} map[string]interface{} "No active crawl job found"
+// @Failure 409 {object} map[string]interface{} "Crawl job already finished"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /urls/{id}/stop [put]
 func (h *URLHandler) StopCrawl(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -261,6 +274,18 @@ func (h *URLHandler) StopCrawl(c *gin.Context) {
 }
 
 // GetCrawlStatus handles GET /api/urls/:id/status
+// @Summary Get the status of a crawl job
+// @Description Get the current status of a crawl job for a specific URL
+// @Tags Crawl Control
+// @Accept json
+// @Produce json
+// @Param id path int true "URL ID"
+// @Success 200 {object} map[string]interface{} "Crawl job status"
+// @Failure 400 {object} map[string]interface{} "Invalid URL ID"
+// @Failure 404 {object} map[string]interface{} "No active crawl job found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /urls/{id}/status [get]
 func (h *URLHandler) GetCrawlStatus(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -313,11 +338,27 @@ func (h *URLHandler) DeleteURL(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "URL deleted successfully"})
 }
 
+// DeleteURLsRequest represents the request body for bulk URL deletion
+type DeleteURLsRequest struct {
+	IDs []int `json:"ids" binding:"required,min=1"`
+}
+
 // DeleteURLs handles DELETE /api/urls (bulk delete)
+// @Summary Delete multiple URLs
+// @Description Delete multiple URLs by their IDs
+// @Tags URLs
+// @Accept json
+// @Produce json
+// @Param request body DeleteURLsRequest true "List of URL IDs to delete"
+// @Success 200 {object} map[string]interface{} "URLs deleted successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request format"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /urls [delete]
+// DeleteURLs deletes multiple URLs by their IDs
+// This endpoint allows bulk deletion of URLs. It first stops any active crawls for the specified URLs,
 func (h *URLHandler) DeleteURLs(c *gin.Context) {
-	var req struct {
-		IDs []int `json:"ids" binding:"required,min=1"`
-	}
+	var req DeleteURLsRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format", "details": err.Error()})
@@ -342,6 +383,19 @@ func (h *URLHandler) DeleteURLs(c *gin.Context) {
 }
 
 // RestartCrawl handles PUT /api/urls/:id/restart
+// @Summary Restart a crawl for a URL
+// @Description Restart the crawling process for a specific URL
+// @Tags Crawl Control
+// @Accept json
+// @Produce json
+// @Param id path int true "URL ID"
+// @Success 200 {object} map[string]interface{} "Crawl restarted successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid URL ID"
+// @Failure 404 {object} map[string]interface{} "URL not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /urls/{id}/restart [put]
+// RestartCrawl restarts the crawling process for a specific URL
 func (h *URLHandler) RestartCrawl(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

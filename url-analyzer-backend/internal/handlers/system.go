@@ -63,7 +63,7 @@ func (h *SystemHandler) Health(c *gin.Context) {
 	c.JSON(http.StatusOK, health)
 }
 
-// Stats handles GET /api/stats
+// handles GET /api/stats
 // @Summary Get system statistics
 // @Description Get detailed statistics about the system, database, and crawler
 // @Tags System
@@ -102,6 +102,15 @@ func (h *SystemHandler) Stats(c *gin.Context) {
 }
 
 // handles GET /api/jobs
+// GetActiveJobs handles GET /api/jobs
+// @Summary Get active crawl jobs
+// @Description Returns a list of currently active crawl jobs
+// @Tags System
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Active jobs"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /jobs [get]
 func (h *SystemHandler) GetActiveJobs(c *gin.Context) {
 	activeJobs := h.crawlerService.GetActiveJobs()
 	
@@ -112,6 +121,14 @@ func (h *SystemHandler) GetActiveJobs(c *gin.Context) {
 }
 
 // handles POST /api/jobs/cleanup
+// @Summary Clean up old/finished jobs
+// @Description Cleans up completed or stale jobs from the system
+// @Tags System
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Jobs cleaned up successfully"
+// @Failure 500 {object} map[string]interface{} "Failed to clean up jobs"
+// @Security ApiKeyAuth
+// @Router /jobs/cleanup [post]
 func (h *SystemHandler) CleanupJobs(c *gin.Context) {
 	h.crawlerService.CleanupCompletedJobs()
 	
