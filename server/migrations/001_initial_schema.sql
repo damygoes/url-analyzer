@@ -1,6 +1,6 @@
 CREATE TABLE urls (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    url VARCHAR(2048) NOT NULL UNIQUE,
+    url VARCHAR(768) NOT NULL UNIQUE,  -- Reduced from 2048 to 768 for MySQL index limit
     status ENUM('queued', 'running', 'completed', 'error') DEFAULT 'queued',
     error_message TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -32,7 +32,7 @@ CREATE TABLE crawl_results (
 CREATE TABLE broken_links (
     id INT AUTO_INCREMENT PRIMARY KEY,
     crawl_result_id INT NOT NULL,
-    url VARCHAR(2048) NOT NULL,
+    url VARCHAR(768) NOT NULL,  -- Reduced from 2048 to 768
     status_code INT NOT NULL,
     error_message TEXT,
     link_text VARCHAR(1024),

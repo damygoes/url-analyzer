@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// creates authentication middleware using API keys
 func AuthMiddleware(repo database.RepositoryInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Skip auth for health check endpoint
@@ -57,19 +56,18 @@ func AuthMiddleware(repo database.RepositoryInterface) gin.HandlerFunc {
 	}
 }
 
-// handles CORS headers
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.GetHeader("Origin")
 		
-		// Allow specific origins or all origins in development
 		allowedOrigins := []string{
-			"http://localhost:3000",  
-			"http://localhost:5173",  
-			"http://localhost:4173",  
+			"http://localhost:3000",  // React dev server
+			"http://localhost:5173",  // Vite dev server
+			"http://localhost:4173",  // Vite preview
+			"http://localhost:8000",  // Swagger UI
 		}
 		
-		// Check if origin is allowed
+		// Check if origin is allowed or if it's a same-origin request
 		allowed := false
 		for _, allowedOrigin := range allowedOrigins {
 			if origin == allowedOrigin {
@@ -78,8 +76,11 @@ func CORSMiddleware() gin.HandlerFunc {
 			}
 		}
 		
-		if allowed {
-			c.Header("Access-Control-Allow-Origin", origin)
+		// For Swagger UI and same-origin requests
+		if allowed || origin == "" {
+			if origin != "" {
+				c.Header("Access-Control-Allow-Origin", origin)
+			}
 		}
 		
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -97,7 +98,6 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-// logs HTTP requests
 func LoggingMiddleware() gin.HandlerFunc {
 	return gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
@@ -114,7 +114,7 @@ func LoggingMiddleware() gin.HandlerFunc {
 	})
 }
 
-// handle errors
+// handles errors
 func ErrorHandlingMiddleware() gin.HandlerFunc {
 	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
 		if err, ok := recovered.(string); ok {

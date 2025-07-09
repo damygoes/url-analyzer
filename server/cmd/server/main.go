@@ -36,7 +36,6 @@ import (
 )
 
 func main() {
-
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables")
 	}
@@ -54,11 +53,9 @@ func main() {
 		log.Printf("Warning: Failed to seed database: %v", err)
 	}
 
-	// Initialize repository and services
 	repo := database.GetRepository()
 	crawlerService := services.NewCrawlerService(repo)
 
-	// Initialize handlers
 	urlHandler := handlers.NewURLHandler(repo, crawlerService)
 	systemHandler := handlers.NewSystemHandler(repo, crawlerService)
 
@@ -92,8 +89,8 @@ func setupRouter(repo database.RepositoryInterface, urlHandler *handlers.URLHand
 	router.Use(middleware.LoggingMiddleware())
 	router.Use(middleware.CORSMiddleware())
 
-	// Swagger documentation
-	docs.SwaggerInfo.Host = getEnv("SERVER_HOST", "localhost") + ":" + getEnv("SERVER_PORT", "8000")
+	// Swagger documentation - use localhost for browser access
+	docs.SwaggerInfo.Host = "localhost:" + getEnv("SERVER_PORT", "8000")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Public routes (no auth required)
@@ -111,7 +108,7 @@ func setupRouter(repo database.RepositoryInterface, urlHandler *handlers.URLHand
 		protected.GET("/urls", urlHandler.ListURLs)
 		protected.GET("/urls/:id", urlHandler.GetURL)
 		protected.DELETE("/urls/:id", urlHandler.DeleteURL)
-		protected.DELETE("/urls", urlHandler.DeleteURLs) 
+		protected.DELETE("/urls", urlHandler.DeleteURLs) // Bulk delete
 
 		// Crawl control
 		protected.PUT("/urls/:id/start", urlHandler.StartCrawl)
@@ -125,7 +122,7 @@ func setupRouter(repo database.RepositoryInterface, urlHandler *handlers.URLHand
 		protected.POST("/jobs/cleanup", systemHandler.CleanupJobs)
 	}
 
-	// catch-all for undefined endpoints
+	// catch-all route for undefined endpoints
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{"error": "Endpoint not found"})
 	})
