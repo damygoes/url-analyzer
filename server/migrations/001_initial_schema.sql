@@ -1,13 +1,12 @@
 CREATE TABLE urls (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    url VARCHAR(2048) NOT NULL,
+    url VARCHAR(2048) NOT NULL UNIQUE,
     status ENUM('queued', 'running', 'completed', 'error') DEFAULT 'queued',
     error_message TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_status (status),
-    INDEX idx_created_at (created_at),
-    UNIQUE KEY unique_url (url(768))
+    INDEX idx_created_at (created_at)
 );
 
 CREATE TABLE crawl_results (
@@ -36,9 +35,10 @@ CREATE TABLE broken_links (
     url VARCHAR(2048) NOT NULL,
     status_code INT NOT NULL,
     error_message TEXT,
+    link_text VARCHAR(1024),
+    is_internal BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (crawl_result_id) REFERENCES crawl_results(id) ON DELETE CASCADE,
-    INDEX idx_crawl_result_id (crawl_result_id),
-    INDEX idx_url (url(768))
+    INDEX idx_crawl_result_id (crawl_result_id)
 );
 
 CREATE TABLE users (
@@ -49,5 +49,5 @@ CREATE TABLE users (
     INDEX idx_api_key (api_key)
 );
 
--- default user for testing
+-- Insert a default user for testing
 INSERT INTO users (username, api_key) VALUES ('admin', 'test-api-key-12345');
