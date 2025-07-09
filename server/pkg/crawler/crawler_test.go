@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// createTestServer creates a test HTTP server with sample HTML
+// creates a test HTTP server with sample HTML
 func createTestServer() *httptest.Server {
 	mux := http.NewServeMux()
 	
@@ -99,14 +99,13 @@ func TestCrawler_CrawlURL_Success(t *testing.T) {
 	assert.Equal(t, "HTML5", result.HTMLVersion)
 	assert.True(t, result.HasLoginForm)
 	
-	// Heading counts - let's debug and be more flexible
+	// Heading counts
 	t.Logf("Heading counts: %+v", result.HeadingCounts)
 	
-	// Basic checks - ensure we're counting headings
+	// Basic checks on headings
 	assert.Greater(t, result.HeadingCounts["h1"], 0, "Should have at least one H1")
 	assert.GreaterOrEqual(t, result.HeadingCounts["h2"], 0, "Should have zero or more H2")
 	
-	// Total headings should be reasonable
 	totalHeadings := 0
 	for _, count := range result.HeadingCounts {
 		totalHeadings += count
@@ -132,7 +131,7 @@ func TestCrawler_CrawlURL_Success(t *testing.T) {
 	assert.Equal(t, 404, brokenLink.StatusCode)
 	assert.True(t, brokenLink.IsInternal)
 	
-	// Performance
+	// Crawl duration added for performance measurement
 	assert.Greater(t, result.CrawlDuration, time.Duration(0))
 	assert.Less(t, result.CrawlDuration, 30*time.Second)
 }
@@ -279,7 +278,6 @@ func TestCrawler_LinkClassification(t *testing.T) {
 	require.NoError(t, result.Error)
 	
 	// Should only count HTTP/HTTPS links
-	// Be more flexible with link counting due to the complexity of link classification
 	assert.Greater(t, result.InternalLinks, 0, "Should have some internal links")
 	assert.Greater(t, result.ExternalLinks, 0, "Should have some external links")
 	

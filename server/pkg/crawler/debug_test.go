@@ -22,8 +22,6 @@ func TestCrawler_DebugLinks(t *testing.T) {
 	t.Logf("=== DEBUG: Found Links ===")
 	t.Logf("Total internal: %d, Total external: %d", result.InternalLinks, result.ExternalLinks)
 	
-	// We need to get the HTMLInfo to see all links
-	// For now, let's just work with what we have
 	t.Logf("Broken links found: %d", len(result.BrokenLinks))
 	for i, bl := range result.BrokenLinks {
 		t.Logf("Broken link %d: %s (internal: %t, status: %d)", i, bl.URL, bl.IsInternal, bl.StatusCode)

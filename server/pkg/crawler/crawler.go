@@ -13,7 +13,7 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// Crawler is the main crawler struct
+// main crawler struct
 type Crawler struct {
 	client   *resty.Client
 	options  models.CrawlOptions
@@ -21,7 +21,7 @@ type Crawler struct {
 	mu       sync.RWMutex
 }
 
-// NewCrawler creates a new crawler instance
+// creates a new crawler instance
 func NewCrawler(options models.CrawlOptions) *Crawler {
 	client := resty.New()
 	client.SetTimeout(options.Timeout)
@@ -44,14 +44,14 @@ func NewCrawler(options models.CrawlOptions) *Crawler {
 	}
 }
 
-// SetProgressCallback sets a callback function to receive progress updates
+// sets a callback function to receive progress updates
 func (c *Crawler) SetProgressCallback(callback models.ProgressCallback) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.progress = callback
 }
 
-// reportProgress safely reports progress to the callback
+// safely reports progress to the callback
 func (c *Crawler) reportProgress(status models.CrawlStatus, message string, progress float64) {
 	c.mu.RLock()
 	callback := c.progress
@@ -62,7 +62,7 @@ func (c *Crawler) reportProgress(status models.CrawlStatus, message string, prog
 	}
 }
 
-// CrawlURL crawls a single URL and returns detailed information
+// crawls a single URL and returns detailed information
 func (c *Crawler) CrawlURL(targetURL string) *models.CrawlJobResult {
 	startTime := time.Now()
 	
@@ -150,7 +150,7 @@ func (c *Crawler) CrawlURL(targetURL string) *models.CrawlJobResult {
 	return result
 }
 
-// extractHTMLInfo extracts detailed information from the HTML document
+// extracts detailed information from the HTML document
 func (c *Crawler) extractHTMLInfo(doc *goquery.Document, baseURL *url.URL) models.HTMLInfo {
 	info := models.HTMLInfo{
 		Headings: make(map[string]int),
@@ -224,7 +224,7 @@ func (c *Crawler) extractHTMLInfo(doc *goquery.Document, baseURL *url.URL) model
 	return info
 }
 
-// detectHTMLVersion attempts to detect the HTML version
+// attempts to detect the HTML version
 func (c *Crawler) detectHTMLVersion(doc *goquery.Document) string {
 	// Check for HTML5 doctype
 	doctype := doc.Find("html").First().AttrOr("", "")
@@ -235,7 +235,6 @@ func (c *Crawler) detectHTMLVersion(doc *goquery.Document) string {
 	}
 	
 	// Check for specific HTML4 doctypes in the raw content
-	// This is a simplified detection - in a real scenario you'd parse the doctype declaration
 	if strings.Contains(strings.ToLower(doctype), "html 4") {
 		return "HTML 4.01"
 	}
@@ -244,11 +243,10 @@ func (c *Crawler) detectHTMLVersion(doc *goquery.Document) string {
 		return "XHTML 1.0"
 	}
 	
-	// Default assumption for modern websites
 	return "HTML5"
 }
 
-// detectLoginForm checks if the page contains a login form
+// checks if the page contains a login form
 func (c *Crawler) detectLoginForm(doc *goquery.Document) bool {
 	// Look for password fields first (most reliable indicator)
 	if doc.Find("input[type='password']").Length() > 0 {
@@ -288,7 +286,7 @@ func (c *Crawler) detectLoginForm(doc *goquery.Document) bool {
 	return false
 }
 
-// checkBrokenLinks checks a list of links for broken ones
+// checks a list of links for broken ones
 func (c *Crawler) checkBrokenLinks(links []models.LinkInfo, baseURL *url.URL) []models.CrawlBrokenLink {
 	brokenLinks := []models.CrawlBrokenLink{}
 	
@@ -335,7 +333,7 @@ func (c *Crawler) checkBrokenLinks(links []models.LinkInfo, baseURL *url.URL) []
 	return brokenLinks
 }
 
-// shouldSkipLink determines if a link should be skipped during broken link checking
+// determines if a link should be skipped during broken link checking
 func (c *Crawler) shouldSkipLink(linkURL string) bool {
 	// Skip javascript:, mailto:, tel:, ftp: links
 	skipPrefixes := []string{"javascript:", "mailto:", "tel:", "ftp:", "#"}
@@ -349,7 +347,7 @@ func (c *Crawler) shouldSkipLink(linkURL string) bool {
 	return false
 }
 
-// checkSingleLink checks if a single link is broken
+// checks if a single link is broken
 func (c *Crawler) checkSingleLink(linkInfo models.LinkInfo) *models.CrawlBrokenLink {
 	// Use HEAD request first for efficiency
 	resp, err := c.client.R().Head(linkInfo.URL)
@@ -384,7 +382,7 @@ func (c *Crawler) checkSingleLink(linkInfo models.LinkInfo) *models.CrawlBrokenL
 	return nil
 }
 
-// GetStats returns crawler statistics
+// returns crawler statistics
 func (c *Crawler) GetStats() map[string]interface{} {
 	return map[string]interface{}{
 		"timeout":            c.options.Timeout.String(),
