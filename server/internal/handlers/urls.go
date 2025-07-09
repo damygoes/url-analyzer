@@ -25,7 +25,19 @@ func NewURLHandler(repo database.RepositoryInterface, crawlerService services.Cr
 	}
 }
 
-// handles POST /api/urls
+// CreateURL handles POST /api/urls
+// @Summary Add a new URL for analysis
+// @Description Add a new URL to be crawled and analyzed
+// @Tags URLs
+// @Accept json
+// @Produce json
+// @Param request body models.CreateURLRequest true "URL to add"
+// @Success 201 {object} map[string]interface{} "URL added successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request format"
+// @Failure 409 {object} map[string]interface{} "URL already exists"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /urls [post]
 func (h *URLHandler) CreateURL(c *gin.Context) {
 	var req models.CreateURLRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -33,7 +45,6 @@ func (h *URLHandler) CreateURL(c *gin.Context) {
 		return
 	}
 
-	// Check if URL already exists
 	existingURL, err := h.repo.GetURLByURL(req.URL)
 	if err == nil {
 		c.JSON(http.StatusConflict, gin.H{
@@ -44,7 +55,6 @@ func (h *URLHandler) CreateURL(c *gin.Context) {
 		return
 	}
 
-	// Create new URL
 	url, err := h.repo.CreateURL(req.URL)
 	if err != nil {
 		if database.IsUniqueConstraintError(err) {
@@ -61,7 +71,23 @@ func (h *URLHandler) CreateURL(c *gin.Context) {
 	})
 }
 
-// handles GET /api/urls
+// ListURLs handles GET /api/urls
+// @Summary List URLs with pagination and filtering
+// @Description Get a paginated list of URLs with optional filtering and sorting
+// @Tags URLs
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param page_size query int false "Items per page" default(10)
+// @Param status query string false "Filter by status" Enums(queued, running, completed, error)
+// @Param search query string false "Search in URL or title"
+// @Param sort_by query string false "Sort field" default(created_at)
+// @Param sort_order query string false "Sort order" Enums(asc, desc) default(desc)
+// @Success 200 {object} models.PaginatedResponse "List of URLs"
+// @Failure 400 {object} map[string]interface{} "Invalid query parameters"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /urls [get]
 func (h *URLHandler) ListURLs(c *gin.Context) {
 	var filter models.URLFilter
 	if err := c.ShouldBindQuery(&filter); err != nil {
@@ -102,7 +128,19 @@ func (h *URLHandler) ListURLs(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// handles GET /api/urls/:id
+// GetURL handles GET /api/urls/:id
+// @Summary Get detailed information about a URL
+// @Description Get detailed information about a specific URL including crawl results and broken links
+// @Tags URLs
+// @Accept json
+// @Produce json
+// @Param id path int true "URL ID"
+// @Success 200 {object} map[string]interface{} "URL details with crawl results"
+// @Failure 400 {object} map[string]interface{} "Invalid URL ID"
+// @Failure 404 {object} map[string]interface{} "URL not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /urls/{id} [get]
 func (h *URLHandler) GetURL(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -151,7 +189,20 @@ func (h *URLHandler) GetURL(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// handles PUT /api/urls/:id/start
+// StartCrawl handles PUT /api/urls/:id/start
+// @Summary Start crawling a URL
+// @Description Start the crawling process for a specific URL
+// @Tags Crawl Control
+// @Accept json
+// @Produce json
+// @Param id path int true "URL ID"
+// @Success 200 {object} map[string]interface{} "Crawl started successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid URL ID"
+// @Failure 404 {object} map[string]interface{} "URL not found"
+// @Failure 409 {object} map[string]interface{} "Crawl already in progress"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /urls/{id}/start [put]
 func (h *URLHandler) StartCrawl(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -184,7 +235,7 @@ func (h *URLHandler) StartCrawl(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Crawl started successfully"})
 }
 
-// handles PUT /api/urls/:id/stop
+// StopCrawl handles PUT /api/urls/:id/stop
 func (h *URLHandler) StopCrawl(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -209,7 +260,7 @@ func (h *URLHandler) StopCrawl(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Crawl stopped successfully"})
 }
 
-// handles GET /api/urls/:id/status
+// GetCrawlStatus handles GET /api/urls/:id/status
 func (h *URLHandler) GetCrawlStatus(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -226,7 +277,19 @@ func (h *URLHandler) GetCrawlStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"job_status": jobStatus})
 }
 
-// handles DELETE /api/urls/:id
+// DeleteURL handles DELETE /api/urls/:id
+// @Summary Delete a URL
+// @Description Delete a specific URL and all its associated data
+// @Tags URLs
+// @Accept json
+// @Produce json
+// @Param id path int true "URL ID"
+// @Success 200 {object} map[string]interface{} "URL deleted successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid URL ID"
+// @Failure 404 {object} map[string]interface{} "URL not found"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /urls/{id} [delete]
 func (h *URLHandler) DeleteURL(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -250,7 +313,7 @@ func (h *URLHandler) DeleteURL(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "URL deleted successfully"})
 }
 
-// handles DELETE /api/urls (bulk delete)
+// DeleteURLs handles DELETE /api/urls (bulk delete)
 func (h *URLHandler) DeleteURLs(c *gin.Context) {
 	var req struct {
 		IDs []int `json:"ids" binding:"required,min=1"`
@@ -278,7 +341,7 @@ func (h *URLHandler) DeleteURLs(c *gin.Context) {
 	})
 }
 
-// handles PUT /api/urls/:id/restart
+// RestartCrawl handles PUT /api/urls/:id/restart
 func (h *URLHandler) RestartCrawl(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

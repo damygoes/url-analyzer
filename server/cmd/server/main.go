@@ -1,8 +1,29 @@
+// @title URL Analyzer API
+// @version 1.0
+// @description A web application that accepts website URLs, crawls them and displays key information about the pages.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8000
+// @BasePath /api
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// @description Enter your API key in the format: test-api-key-12345
+
 package main
 
 import (
 	"log"
 	"os"
+	"url-analyzer/docs"
 	"url-analyzer/internal/database"
 	"url-analyzer/internal/handlers"
 	"url-analyzer/internal/middleware"
@@ -10,26 +31,25 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
-	// Load environment variables
+
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables")
 	}
 
-	// Initialize database
 	if err := database.InitDB(); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer database.CloseDB()
 
-	// Validate database schema
 	if err := database.ValidateSchema(); err != nil {
 		log.Fatalf("Database schema validation failed: %v", err)
 	}
 
-	// Seed database
 	if err := database.SeedDatabase(); err != nil {
 		log.Printf("Warning: Failed to seed database: %v", err)
 	}
@@ -51,6 +71,7 @@ func main() {
 
 	log.Printf("Starting server on %s:%s", host, port)
 	log.Printf("API endpoints available at http://%s:%s/api", host, port)
+	log.Printf("Swagger documentation: http://%s:%s/swagger/index.html", host, port)
 	log.Printf("Health check: http://%s:%s/api/health", host, port)
 
 	// Start server
@@ -67,10 +88,13 @@ func setupRouter(repo database.RepositoryInterface, urlHandler *handlers.URLHand
 
 	router := gin.New()
 
-	// Add middleware
 	router.Use(middleware.ErrorHandlingMiddleware())
 	router.Use(middleware.LoggingMiddleware())
 	router.Use(middleware.CORSMiddleware())
+
+	// Swagger documentation
+	docs.SwaggerInfo.Host = getEnv("SERVER_HOST", "localhost") + ":" + getEnv("SERVER_PORT", "8000")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Public routes (no auth required)
 	public := router.Group("/api")
@@ -87,7 +111,7 @@ func setupRouter(repo database.RepositoryInterface, urlHandler *handlers.URLHand
 		protected.GET("/urls", urlHandler.ListURLs)
 		protected.GET("/urls/:id", urlHandler.GetURL)
 		protected.DELETE("/urls/:id", urlHandler.DeleteURL)
-		protected.DELETE("/urls", urlHandler.DeleteURLs) // Bulk delete
+		protected.DELETE("/urls", urlHandler.DeleteURLs) 
 
 		// Crawl control
 		protected.PUT("/urls/:id/start", urlHandler.StartCrawl)
@@ -101,7 +125,7 @@ func setupRouter(repo database.RepositoryInterface, urlHandler *handlers.URLHand
 		protected.POST("/jobs/cleanup", systemHandler.CleanupJobs)
 	}
 
-	// Add a catch-all route for undefined endpoints
+	// catch-all for undefined endpoints
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{"error": "Endpoint not found"})
 	})

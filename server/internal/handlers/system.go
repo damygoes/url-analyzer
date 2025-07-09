@@ -26,7 +26,15 @@ func NewSystemHandler(repo database.RepositoryInterface, crawlerService services
 	}
 }
 
-// handles GET /api/health
+// Health handles GET /api/health
+// @Summary Health check
+// @Description Get the health status of the API and its dependencies
+// @Tags System
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "System is healthy"
+// @Failure 503 {object} map[string]interface{} "System is unhealthy"
+// @Router /health [get]
 func (h *SystemHandler) Health(c *gin.Context) {
 	health := gin.H{
 		"status":    "ok",
@@ -55,7 +63,16 @@ func (h *SystemHandler) Health(c *gin.Context) {
 	c.JSON(http.StatusOK, health)
 }
 
-// handles GET /api/stats
+// Stats handles GET /api/stats
+// @Summary Get system statistics
+// @Description Get detailed statistics about the system, database, and crawler
+// @Tags System
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "System statistics"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Security ApiKeyAuth
+// @Router /stats [get]
 func (h *SystemHandler) Stats(c *gin.Context) {
 	// Get database statistics
 	dbStats, err := database.GetDatabaseStats()
