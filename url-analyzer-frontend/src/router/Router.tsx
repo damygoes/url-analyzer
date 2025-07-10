@@ -25,7 +25,6 @@ export function Router() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          {/* Auth Route */}
           <Route 
             path="/auth" 
             element={
