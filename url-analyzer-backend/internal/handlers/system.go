@@ -63,6 +63,25 @@ func (h *SystemHandler) Health(c *gin.Context) {
 	c.JSON(http.StatusOK, health)
 }
 
+// handles GET /api/verify
+// @Summary Verify authentication
+// @Description Verify if the user is authenticated and return user details
+// @Tags System
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "User is authenticated"
+// @Failure 401 {object} map[string]interface{} "Unauthorized
+func (h *SystemHandler) VerifyAuth(c *gin.Context) {
+	userID := c.MustGet("user_id").(int)
+	username := c.MustGet("username").(string)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":   "valid",
+		"user_id":  userID,
+		"username": username,
+	})
+}
+
 // handles GET /api/stats
 // @Summary Get system statistics
 // @Description Get detailed statistics about the system, database, and crawler

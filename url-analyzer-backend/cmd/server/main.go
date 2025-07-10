@@ -103,6 +103,9 @@ func setupRouter(repo database.RepositoryInterface, urlHandler *handlers.URLHand
 	protected := router.Group("/api")
 	protected.Use(middleware.AuthMiddleware(repo))
 	{
+		// User authentication
+		protected.GET("/auth/verify", systemHandler.VerifyAuth)
+
 		// URL management
 		protected.POST("/urls", urlHandler.CreateURL)
 		protected.GET("/urls", urlHandler.ListURLs)
