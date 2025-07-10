@@ -1,11 +1,12 @@
-import * as React from 'react';
+import { cn } from '@/lib/utils';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
-
-import { cn } from '@/lib/utils';
+import { type ButtonHTMLAttributes, forwardRef } from 'react';
+import { Icon, type IconProps, type IconSize } from './icon/Icon';
+import type { IconName } from './icon/iconMapping';
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
@@ -35,25 +36,86 @@ const buttonVariants = cva(
   }
 );
 
-function Button({
-  className,
-  variant,
-  size,
-  asChild = false,
-  ...props
-}: React.ComponentProps<'button'> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
-  const Comp = asChild ? Slot : 'button';
+// --- Icon size mapping by button size
+const iconSizeMap: Record<NonNullable<ButtonProps['size']>, IconSize> = {
+  default: 'xl',
+  sm: 'lg',
+  lg: 'xl',
+  icon: '2xl',
+};
 
-  return (
-    <Comp
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+export type ButtonVariants = Array<
+  NonNullable<VariantProps<typeof buttonVariants>['variant']>
+>;
+
+export type ButtonSizes = Array<
+  NonNullable<VariantProps<typeof buttonVariants>['size']>
+>;
+
+export interface ButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+  icon?: IconName;
+  iconPosition?: 'before' | 'after';
+  isLoading?: boolean;
 }
 
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      isLoading = false,
+      icon,
+      iconPosition = 'before',
+      children,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
+    const Comp = asChild ? Slot : 'button';
+    const defaultIconSize = iconSizeMap[size || 'default'];
+
+    const effectiveIcon: IconProps | undefined = isLoading
+      ? { name: 'loading', size: defaultIconSize }
+      : icon
+        ? { name: icon, size: defaultIconSize }
+        : undefined;
+
+    const renderIcon = (icon?: IconProps, margin?: string) =>
+      icon ? (
+        <span
+          className={cn(
+            children && margin,
+            icon.name === 'loading' && 'animate-spin'
+          )}
+        >
+          <Icon {...icon} />
+        </span>
+      ) : null;
+
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        disabled={isLoading || disabled}
+        {...props}
+      >
+        {iconPosition === 'before' && renderIcon(effectiveIcon, 'mr-1')}
+        {children}
+        {iconPosition === 'after' &&
+          !isLoading &&
+          renderIcon(effectiveIcon, 'ml-1')}
+      </Comp>
+    );
+  }
+);
+
+Button.displayName = 'Button';
+
+// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants };

@@ -1,4 +1,3 @@
-
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
@@ -10,11 +9,9 @@ interface SidebarProps {
 // ];
 
 export function Sidebar({ open, onClose }: SidebarProps) {
-//   const [collapsed, setCollapsed] = useState(false);
-console.log('Sidebar open:', open);
-console.log('Sidebar onClose:', onClose);
+  //   const [collapsed, setCollapsed] = useState(false);
+  console.log('Sidebar open:', open);
+  console.log('Sidebar onClose:', onClose);
 
-  return (
-    <div> Sidebar component </div>
-  );
+  return <div> Sidebar component </div>;
 }

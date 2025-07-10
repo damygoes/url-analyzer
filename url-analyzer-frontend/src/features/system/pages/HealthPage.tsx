@@ -1,5 +1,3 @@
 export function HealthPage() {
-    return (
-        <div> Health Page </div>
-    );
+  return <div> Health Page </div>;
 }

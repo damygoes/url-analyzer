@@ -3,8 +3,8 @@ import axios from 'axios';
 
 export const apiClient = axios.create({
   baseURL: '/api',
-  timeout: 30000, // 30 seconds timeout
-  withCredentials: true, // Include cookies in requests
+  timeout: 30000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -18,30 +18,20 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // common errors
+    console.error('[API] Response error:', error);
+
     if (error.response?.status === 401) {
-      // Clear invalid API key
       useAuthStore.getState().clearAuth();
-      window.location.href = '/auth';
+      console.warn('Unauthorized - user should login again');
     }
-    
-    // Extract error message
-    const message = error.response?.data?.error || error.message || 'An error occurred';
-    
-    return Promise.reject({
-      ...error,
-      message,
-      status: error.response?.status,
-    });
+
+    return Promise.reject(error);
   }
 );
 

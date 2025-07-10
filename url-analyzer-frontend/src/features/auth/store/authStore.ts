@@ -13,14 +13,14 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       apiKey: null,
       isAuthenticated: false,
-      
+
       setApiKey: (apiKey: string) => {
         set({
           apiKey,
           isAuthenticated: !!apiKey,
         });
       },
-      
+
       clearAuth: () => {
         set({
           apiKey: null,
@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ 
+      partialize: (state) => ({
         apiKey: state.apiKey,
         isAuthenticated: state.isAuthenticated,
       }),

@@ -23,7 +23,7 @@
     /* Enum support */
     "preserveConstEnums": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
+    "esModuleInterop": true
   },
   "include": ["vite.config.ts"]
 }

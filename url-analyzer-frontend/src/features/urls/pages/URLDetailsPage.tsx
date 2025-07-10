@@ -1,5 +1,3 @@
 export function URLDetailsPage() {
-    return (
-        <div> URL Details Page </div>
-    );
+  return <div> URL Details Page </div>;
 }

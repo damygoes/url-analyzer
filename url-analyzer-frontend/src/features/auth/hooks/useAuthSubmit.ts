@@ -1,44 +1,39 @@
 import { useAuthStore } from '@/features/auth/store/authStore';
 import apiClient from '@/shared/api/client';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 type UseAuthSubmitResult = {
   isLoading: boolean;
-  error: string;
-  authenticate: (apiKey: string) => Promise<void>;
+  authenticate: (apiKey: string) => Promise<boolean>;
 };
 
 export function useAuthSubmit(): UseAuthSubmitResult {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
   const setApiKey = useAuthStore((state) => state.setApiKey);
 
-  const authenticate = async (apiKey: string) => {
-    setError('');
+  const authenticate = async (apiKey: string): Promise<boolean> => {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.get('/health', {
-        headers: { Authorization: apiKey },
+      const response = await apiClient.get('/auth/verify', {
+        headers: {
+          Authorization: apiKey, // apiKey passed here to avoid stale key from store
+        },
       });
 
       if (response.status === 200) {
-        setApiKey(apiKey);
-        navigate('/dashboard');
+        setApiKey(apiKey); // only set after successful verification
+        return true;
       }
-    } catch (err: unknown) {
-      const error = err as { response?: { status: number } };
-      if (error.response?.status === 401) {
-        setError('Invalid API key. Please check and try again.');
-      } else {
-        setError('Failed to authenticate. Please try again.');
-      }
+
+      return false;
+    } catch (error) {
+      console.error('Authentication error:', error);
+      return false;
     } finally {
       setIsLoading(false);
     }
   };
 
-  return { isLoading, error, authenticate };
+  return { isLoading, authenticate };
 }

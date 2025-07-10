@@ -1,14 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Icon } from '@/components/ui/icon/Icon';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { AlertCircle } from 'lucide-react';
-
 import { useAuthSubmit } from '@/features/auth/hooks/useAuthSubmit';
+import { useNavigate } from 'react-router-dom';
 
 const authSchema = z.object({
   apiKey: z.string().min(1, 'API key is required'),
@@ -17,42 +24,79 @@ const authSchema = z.object({
 type AuthFormData = z.infer<typeof authSchema>;
 
 export function AuthForm() {
-  const { register, handleSubmit, formState: { errors } } = useForm<AuthFormData>({
+  const navigate = useNavigate();
+  const { isLoading, authenticate } = useAuthSubmit();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const form = useForm<AuthFormData>({
     resolver: zodResolver(authSchema),
+    defaultValues: {
+      apiKey: '',
+    },
   });
 
-  const { isLoading, error, authenticate } = useAuthSubmit();
+  const onSubmit = async (data: AuthFormData) => {
+    const success = await authenticate(data.apiKey);
 
-  const onSubmit = (data: AuthFormData) => {
-    authenticate(data.apiKey);
+    if (success) {
+      form.reset();
+      navigate('/dashboard');
+    } else {
+      form.setError('apiKey', {
+        type: 'manual',
+        message: 'Invalid API key. Please check and try again.',
+      });
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="apiKey">API Key</Label>
-        <Input
-          id="apiKey"
-          type="password"
-          placeholder="Enter your API key"
-          {...register('apiKey')}
-          disabled={isLoading}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="apiKey"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>API Key</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Input
+                    {...field}
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your API key"
+                    isLoading={isLoading}
+                    disabled={isLoading}
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-dark hover:text-neutral"
+                    tabIndex={-1}
+                    aria-label={showPassword ? 'Hide API key' : 'Show API key'}
+                  >
+                    <Icon
+                      name={showPassword ? 'invisible' : 'visible'}
+                      size="lg"
+                    />
+                  </button>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {errors.apiKey && (
-          <p className="text-sm text-destructive">{errors.apiKey.message}</p>
-        )}
-      </div>
 
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? 'Authenticating...' : 'Authenticate'}
-      </Button>
-    </form>
+        <Button
+          type="submit"
+          className="w-full"
+          icon="key"
+          iconPosition="before"
+          isLoading={isLoading}
+        >
+          {isLoading ? 'Authenticating...' : 'Authenticate'}
+        </Button>
+      </form>
+    </Form>
   );
 }
