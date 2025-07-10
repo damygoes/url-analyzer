@@ -22,7 +22,7 @@ export function RootLayout() {
             'overflow-y-auto overflow-x-hidden bg-background flex-1 mx-auto p-4 lg:ml-2 sm:p-6 lg:p-8'
           )}
         >
-            <Outlet />
+          <Outlet />
         </main>
       </div>
     </div>

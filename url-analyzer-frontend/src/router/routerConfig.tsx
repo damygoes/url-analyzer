@@ -1,3 +1,4 @@
+import { AppErrorBoundary } from '@/components/errors/AppErrorBoundary';
 import { RootLayout } from '@/components/layout/RootLayout';
 import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { AuthPage } from '@/features/auth/pages/AuthPage';
@@ -13,7 +14,7 @@ import {
 
 export const routerConfig = createBrowserRouter(
   createRoutesFromElements(
-    <Route>
+    <Route errorElement={<AppErrorBoundary />}>
       <Route path="/auth" element={<AuthPage />} />
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>

@@ -48,9 +48,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             collapsed={collapsed}
             onLinkClick={onClose}
           />
-
-          {/* Mobile-only Logout */}
-          <div className="mt-auto border-t p-4 lg:hidden">
+          <div className="mt-auto border-t p-4">
             <LogoutButton className="w-full" />
           </div>
         </div>

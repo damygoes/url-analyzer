@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { LogoutButton } from '@/features/auth/components/LogoutButton';
 import { AppName } from './AppName';
 
 interface HeaderProps {
@@ -25,9 +24,9 @@ export function Header({ onMenuClick, isSidebarOpen }: HeaderProps) {
           <AppName />
         </div>
 
-        <div className="hidden sm:flex items-center gap-2">
+        {/* <div className="hidden sm:flex items-center gap-2">
           <LogoutButton />
-        </div>
+        </div> */}
       </div>
     </header>
   );
