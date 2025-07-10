@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { AddURLDialog } from '@/features/urls/components/AddURLDialog';
 import { URLTable } from '@/features/urls/components/URLTable';
 import { useURLStore } from '@/features/urls/store/urlStore';
 import { mockURLs } from '@/mocks/urls';
@@ -13,7 +14,7 @@ import { Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 export function DashboardPage() {
-  const [, setIsAddDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { selectedURLs, clearSelection } = useURLStore();
 
   const handleBulkDelete = async () => {
@@ -106,8 +107,7 @@ export function DashboardPage() {
           />
         </CardContent>
       </Card>
-
-      {/* Add Url Dialog */}
+      <AddURLDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />
     </div>
   );
 }
