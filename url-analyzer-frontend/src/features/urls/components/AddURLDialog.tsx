@@ -15,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { z } from 'zod';
 
 const urlSchema = z.object({
@@ -54,6 +55,7 @@ export function AddURLDialog({ open, onOpenChange }: AddURLDialogProps) {
     try {
       await createURL.mutateAsync(data);
       reset();
+      toast('URL added successfully!');
       onOpenChange(false);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to add URL');

@@ -3,6 +3,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { Toaster } from '../ui/sonner';
 
 export function RootLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,6 +25,7 @@ export function RootLayout() {
         >
           <Outlet />
         </main>
+        <Toaster />
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { URLStatusBadge } from './url-badge/URLStatusBadge';
 import { PaginationControls } from './url-table/PaginationControls';
 import { SortableHeader } from './url-table/SortableHeader';
+import { URLTableEmptyState } from './url-table/URLTableEmptyState';
 import { URLTableSkeleton } from './url-table/URLTableSkeleton';
 
 interface URLTableProps {
@@ -27,15 +28,9 @@ interface URLTableProps {
     total: number;
     totalPages: number;
   };
-  onPageChange: (page: number) => void;
 }
 
-export function URLTable({
-  data,
-  isLoading,
-  pagination,
-  onPageChange,
-}: URLTableProps) {
+export function URLTable({ data, isLoading, pagination }: URLTableProps) {
   const navigate = useNavigate();
   const {
     selectedURLs,
@@ -47,15 +42,18 @@ export function URLTable({
   } = useURLStore();
 
   const handleSort = (field: URLSortField) => {
-    setFilters({
-      sort_by: field,
-      sort_order:
-        filters.sort_by === field && filters.sort_order === SortOrder.ASC
-          ? SortOrder.DESC
-          : SortOrder.ASC,
-    });
+    if (filters.sort_by === field) {
+      setFilters({
+        sort_order:
+          filters.sort_order === SortOrder.ASC ? SortOrder.DESC : SortOrder.ASC,
+      });
+    } else {
+      setFilters({
+        sort_by: field,
+        sort_order: SortOrder.ASC,
+      });
+    }
   };
-
   const isAllSelected =
     data.length > 0 && data.every((url) => selectedURLs.includes(url.id));
   const isSomeSelected = data.some((url) => selectedURLs.includes(url.id));
@@ -68,13 +66,13 @@ export function URLTable({
     }
   };
 
-  if (isLoading) return <URLTableSkeleton />;
-  if (data.length === 0)
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        No URLs found
-      </div>
-    );
+  if (isLoading) {
+    return <URLTableSkeleton />;
+  }
+
+  if (data.length === 0) {
+    return <URLTableEmptyState />;
+  }
 
   return (
     <div className="space-y-4">
@@ -209,8 +207,7 @@ export function URLTable({
         pageSize={pagination.pageSize}
         total={pagination.total}
         totalPages={pagination.totalPages}
-        onPageChange={onPageChange}
-        // onPageChange={(page) => setFilters({ page })}
+        onPageChange={(page) => setFilters({ page })}
       />
     </div>
   );

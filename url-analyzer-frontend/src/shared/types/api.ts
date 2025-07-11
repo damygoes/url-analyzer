@@ -32,7 +32,7 @@ export enum URLSortField {
 }
 
 export interface ApiResponse<T> {
-  data?: T;
+  data: T;
   message?: string;
   error?: string;
   details?: string;

@@ -35,10 +35,11 @@ export function useURLs(filters: URLFilter) {
       if (filters.sort_by) params.append('sort_by', filters.sort_by);
       if (filters.sort_order) params.append('sort_order', filters.sort_order);
 
-      const { data } = await apiClient.get<URLListApiResponse>(
+      const response = await apiClient.get<URLListApiResponse>(
         `/urls?${params}`
       );
-      return data.data!;
+
+      return response.data;
     },
   });
 }

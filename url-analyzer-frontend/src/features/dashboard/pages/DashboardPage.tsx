@@ -1,3 +1,4 @@
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -6,16 +7,20 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Icon } from '@/components/ui/icon/Icon';
 import { AddURLDialog } from '@/features/urls/components/AddURLDialog';
 import { URLTable } from '@/features/urls/components/URLTable';
+import { useURLs } from '@/features/urls/hooks/useURLs';
 import { useURLStore } from '@/features/urls/store/urlStore';
-import { mockURLs } from '@/mocks/urls';
 import { Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 export function DashboardPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const { selectedURLs, clearSelection } = useURLStore();
+  const { filters, selectedURLs, clearSelection } = useURLStore();
+  const { data, isLoading, error } = useURLs(filters);
+
+  const items = Array.isArray(data?.data) ? data.data : [];
 
   const handleBulkDelete = async () => {
     if (selectedURLs.length === 0) return;
@@ -27,17 +32,6 @@ export function DashboardPage() {
     // Trigger rerun for selected URLs
     clearSelection();
   };
-
-  /**
-   *  Just for dummy test - !DELETE THIS LATER
-   */
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
-
-  // Calculate the slice of data for current page
-  const pagedData = mockURLs.slice((page - 1) * pageSize, page * pageSize);
-
-  // !#################
 
   return (
     <div className="space-y-6">
@@ -93,17 +87,25 @@ export function DashboardPage() {
         <CardContent className="space-y-4">
           {/* Filters */}
 
+          {error && (
+            <Alert variant="destructive">
+              <Icon name="alert-circle" />
+              <AlertDescription>
+                Failed to load URLs. Please try again.
+              </AlertDescription>
+            </Alert>
+          )}
+
           {/* URL Table (with dummy data for now) */}
           <URLTable
-            data={pagedData}
-            isLoading={false}
+            data={items}
+            isLoading={isLoading}
             pagination={{
-              page,
-              pageSize,
-              total: mockURLs.length,
-              totalPages: Math.ceil(mockURLs.length / pageSize),
+              page: data?.data.page || 1,
+              pageSize: data?.data.page_size || 10,
+              total: data?.data.total || 0,
+              totalPages: data?.data.total_pages || 0,
             }}
-            onPageChange={setPage}
           />
         </CardContent>
       </Card>
