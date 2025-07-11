@@ -55,7 +55,9 @@ export function AddURLDialog({ open, onOpenChange }: AddURLDialogProps) {
     try {
       await createURL.mutateAsync(data);
       reset();
-      toast('URL added successfully!');
+      toast.success('URL added successfully!', {
+        position: 'top-right',
+      });
       onOpenChange(false);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to add URL');

@@ -117,7 +117,7 @@ export function useRerunURL() {
 export function useRerunURLs() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async (ids: number[]) => {
       const promises = ids.map((id) =>
         apiClient.post<MessageResponse>(`/urls/${id}/crawl`)
@@ -128,6 +128,8 @@ export function useRerunURLs() {
       queryClient.invalidateQueries({ queryKey: urlKeys.lists() });
     },
   });
+
+  return mutation;
 }
 
 export function useCrawlStatus(id: number, enabled = false) {

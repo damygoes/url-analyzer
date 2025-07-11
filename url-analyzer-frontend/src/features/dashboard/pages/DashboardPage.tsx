@@ -1,113 +1,88 @@
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Icon } from '@/components/ui/icon/Icon';
-import { AddURLDialog } from '@/features/urls/components/AddURLDialog';
-import { URLFilters } from '@/features/urls/components/URLFilters';
-import { URLTable } from '@/features/urls/components/URLTable';
-import { useURLs } from '@/features/urls/hooks/useURLs';
-import { useURLStore } from '@/features/urls/store/urlStore';
-import { Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+
+import { AddURLDialog } from '@/features/urls/components/AddURLDialog';
+import {
+  useDeleteURLs,
+  useRerunURLs,
+  useURLs,
+} from '@/features/urls/hooks/useURLs';
+import { useURLStore } from '@/features/urls/store/urlStore';
+
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { pluralize } from '@/shared/utils/pluralize';
+import { toast } from 'sonner';
+import { BulkActionsCard } from '../components/BulkActionsCard';
+import { DashboardHeader } from '../components/DashboardHeader';
+import { URLTableSection } from '../components/URLTableSection';
 
 export function DashboardPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+
   const { filters, selectedURLs, clearSelection } = useURLStore();
   const { data, isLoading, error } = useURLs(filters);
+  const deleteURLs = useDeleteURLs();
+  const rerunURLs = useRerunURLs();
 
-  const handleBulkDelete = async () => {
-    if (selectedURLs.length === 0) return;
-    // Trigger deletion for selected URLs
-  };
+  const selectedCount = selectedURLs.length;
+
+  const title = `Delete ${selectedCount} ${pluralize(selectedCount, 'URL')}?`;
+  const description = `This action cannot be undone. Are you sure you want to permanently delete ${
+    selectedCount === 1 ? 'this' : 'these'
+  } ${pluralize(selectedCount, 'URL')}?`;
 
   const handleBulkRerun = async () => {
-    if (selectedURLs.length === 0) return;
-    // Trigger rerun for selected URLs
+    if (selectedCount === 0 || rerunURLs.isPending) return;
+
+    try {
+      await rerunURLs.mutateAsync(selectedURLs);
+      clearSelection();
+
+      toast.success(
+        `${selectedCount} ${pluralize(selectedCount, 'URL')} re-queued for analysis`,
+        {
+          position: 'top-right',
+        }
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to re-run analysis. Please try again.', {
+        position: 'top-right',
+      });
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    await deleteURLs.mutateAsync(selectedURLs);
     clearSelection();
+    setIsConfirmDialogOpen(false);
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">URL Dashboard</h1>
-          <p className="text-muted-foreground">
-            Analyze and monitor website information
-          </p>
-        </div>
+      <DashboardHeader onAddClick={() => setIsAddDialogOpen(true)} />
 
-        <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add URL
-        </Button>
-      </div>
-
-      {selectedURLs.length > 0 && (
-        <Card>
-          <CardContent className="flex items-center justify-between p-4">
-            <span className="text-sm text-muted-foreground">
-              {selectedURLs.length} URL(s) selected
-            </span>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBulkRerun}
-                className="gap-2"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Re-run Analysis
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleBulkDelete}
-                className="gap-2"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      {selectedCount > 0 && (
+        <BulkActionsCard
+          selectedCount={selectedCount}
+          onDelete={() => setIsConfirmDialogOpen(true)}
+          onRerun={handleBulkRerun}
+        />
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>URLs</CardTitle>
-          <CardDescription>View and manage all analyzed URLs</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <URLFilters />
+      <URLTableSection data={data} isLoading={isLoading} error={error} />
 
-          {error && (
-            <Alert variant="destructive">
-              <Icon name="alert-circle" />
-              <AlertDescription>
-                Failed to load URLs. Please try again.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <URLTable
-            data={data?.items || []}
-            isLoading={isLoading}
-            pagination={{
-              page: data?.page || 1,
-              pageSize: data?.pageSize || 10,
-              total: data?.total || 0,
-              totalPages: data?.totalPages || 1,
-            }}
-          />
-        </CardContent>
-      </Card>
       <AddURLDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />
+
+      <ConfirmDialog
+        open={isConfirmDialogOpen}
+        title={title}
+        description={description}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsConfirmDialogOpen(false)}
+      />
     </div>
   );
 }
