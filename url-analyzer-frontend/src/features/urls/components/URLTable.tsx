@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import type { URLWithResult } from '@/shared/types/api';
 import { SortOrder, URLSortField } from '@/shared/types/api';
 import { Link, useNavigate } from 'react-router-dom';
-import { URLStatusBadge } from './url-badge/URLStatusBadge';
+import { URLCrawlStatusCell } from './crawl/URLCrawlStatusCell';
 import { PaginationControls } from './url-table/PaginationControls';
 import { SortableHeader } from './url-table/SortableHeader';
 import { URLTableEmptyState } from './url-table/URLTableEmptyState';
@@ -165,7 +165,8 @@ export function URLTable({ data, isLoading, pagination }: URLTableProps) {
                   {url.url}
                 </TableCell>
                 <TableCell>
-                  <URLStatusBadge status={url.status} />
+                  <URLCrawlStatusCell url={url} />
+                  {/* <URLStatusBadge status={url.status} /> */}
                 </TableCell>
                 <TableCell className="max-w-xs truncate">
                   {url.crawl_result?.title || '-'}

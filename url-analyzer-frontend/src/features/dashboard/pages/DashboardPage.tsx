@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { AddURLDialog } from '@/features/urls/components/AddURLDialog';
 import {
   useDeleteURLs,
-  useRerunURLs,
   useURLs,
 } from '@/features/urls/hooks/useURLs';
 import { useURLStore } from '@/features/urls/store/urlStore';
@@ -22,7 +21,6 @@ export function DashboardPage() {
   const { filters, selectedURLs, clearSelection } = useURLStore();
   const { data, isLoading, error } = useURLs(filters);
   const deleteURLs = useDeleteURLs();
-  const rerunURLs = useRerunURLs();
 
   const selectedCount = selectedURLs.length;
 
@@ -31,31 +29,22 @@ export function DashboardPage() {
     selectedCount === 1 ? 'this' : 'these'
   } ${pluralize(selectedCount, 'URL')}?`;
 
-  const handleBulkRerun = async () => {
-    if (selectedCount === 0 || rerunURLs.isPending) return;
-
+  const handleConfirmDelete = async () => {
     try {
-      await rerunURLs.mutateAsync(selectedURLs);
+      await deleteURLs.mutateAsync(selectedURLs);
       clearSelection();
+      setIsConfirmDialogOpen(false);
 
       toast.success(
-        `${selectedCount} ${pluralize(selectedCount, 'URL')} re-queued for analysis`,
-        {
-          position: 'top-right',
-        }
+        `${selectedCount} ${pluralize(selectedCount, 'URL')} deleted successfully.`,
+        { position: 'top-right' }
       );
     } catch (err) {
       console.error(err);
-      toast.error('Failed to re-run analysis. Please try again.', {
+      toast.error('Failed to delete URLs. Please try again.', {
         position: 'top-right',
       });
     }
-  };
-
-  const handleConfirmDelete = async () => {
-    await deleteURLs.mutateAsync(selectedURLs);
-    clearSelection();
-    setIsConfirmDialogOpen(false);
   };
 
   return (
@@ -64,9 +53,9 @@ export function DashboardPage() {
 
       {selectedCount > 0 && (
         <BulkActionsCard
-          selectedCount={selectedCount}
-          onDelete={() => setIsConfirmDialogOpen(true)}
-          onRerun={handleBulkRerun}
+          selectedIDs={selectedURLs}
+          urlItems={data?.items || []}
+          onDeleteClick={() => setIsConfirmDialogOpen(true)}
         />
       )}
 

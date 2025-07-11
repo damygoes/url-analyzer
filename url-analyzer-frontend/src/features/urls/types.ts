@@ -13,3 +13,5 @@ export type CrawlStatusConfigEntry = {
   icon: IconName;
   color: string;
 };
+
+export type URLItem = { id: number; status: string };

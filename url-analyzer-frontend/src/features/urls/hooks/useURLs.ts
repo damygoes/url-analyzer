@@ -97,13 +97,13 @@ export function useDeleteURLs() {
   });
 }
 
-export function useRerunURL() {
+export function useStartCrawlingURLs() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: number) => {
-      const { data } = await apiClient.post<MessageResponse>(
-        `/urls/${id}/crawl`
+      const { data } = await apiClient.put<MessageResponse>(
+        `/urls/${id}/start`
       );
       return data;
     },
@@ -114,13 +114,30 @@ export function useRerunURL() {
   });
 }
 
-export function useRerunURLs() {
+export function useRestartCrawlingURLs() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (ids: number[]) => {
       const promises = ids.map((id) =>
-        apiClient.post<MessageResponse>(`/urls/${id}/crawl`)
+        apiClient.put<MessageResponse>(`/urls/${id}/restart`)
+      );
+      await Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: urlKeys.lists() });
+    },
+  });
+
+  return mutation;
+}
+export function useStopCrawlingURLs() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (ids: number[]) => {
+      const promises = ids.map((id) =>
+        apiClient.put<MessageResponse>(`/urls/${id}/stop`)
       );
       await Promise.all(promises);
     },
