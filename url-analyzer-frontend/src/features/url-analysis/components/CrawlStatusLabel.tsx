@@ -1,7 +1,7 @@
 import { Icon } from '@/components/ui/icon/Icon';
 import { cn } from '@/lib/utils';
 import { type CrawlJobStatus, CrawlStatus } from '@/shared/types/api';
-import { crawlStatusConfig } from '../../utils/crawlStatusConfig';
+import { crawlStatusConfig } from '../utils/crawlStatusConfig';
 
 interface CrawlStatusLabelProps {
   status: CrawlJobStatus;
@@ -11,19 +11,21 @@ export function CrawlStatusLabel({ status }: CrawlStatusLabelProps) {
   const config =
     crawlStatusConfig[status.status] || crawlStatusConfig[CrawlStatus.STARTED];
 
-  const normalize = (text: string) => text.trim().toLowerCase().replace(/\.*$/, '');
+  const normalize = (text: string) =>
+    text.trim().toLowerCase().replace(/\.*$/, '');
 
   const labelNormalized = normalize(config.label);
   const messageNormalized = status.message ? normalize(status.message) : '';
 
   // Only show message if it differs meaningfully from the label
-  const showMessage = messageNormalized && messageNormalized !== labelNormalized;
+  const showMessage =
+    messageNormalized && messageNormalized !== labelNormalized;
 
   return (
     <div className="flex items-center gap-3">
       <Icon
         name={config.icon}
-        size='sm'
+        size="sm"
         className={cn(
           config.color,
           status.status !== CrawlStatus.COMPLETED &&
@@ -43,5 +45,3 @@ export function CrawlStatusLabel({ status }: CrawlStatusLabelProps) {
     </div>
   );
 }
-
-

@@ -1,15 +1,14 @@
 import { useState } from 'react';
 
 import { AddURLDialog } from '@/features/urls/components/AddURLDialog';
-import {
-  useDeleteURLs,
-  useURLs,
-} from '@/features/urls/hooks/useURLs';
-import { useURLStore } from '@/features/urls/store/urlStore';
+import { useDeleteURLs, useURLs } from '@/features/urls/hooks/useURLs';
 
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { pluralize } from '@/shared/utils/pluralize';
 import { toast } from 'sonner';
+
+import { useURLAnalysisStore } from '@/features/url-analysis/store/urlAnalysisStore';
+import { useURLStore } from '@/features/urls/store/urlStore';
 import { BulkActionsCard } from '../components/BulkActionsCard';
 import { DashboardHeader } from '../components/DashboardHeader';
 import { URLTableSection } from '../components/URLTableSection';
@@ -18,9 +17,16 @@ export function DashboardPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
-  const { filters, selectedURLs, clearSelection } = useURLStore();
+  const { analyzingIDs } = useURLAnalysisStore();
+
+  const { selectedURLs, filters, clearSelection } = useURLStore();
+
   const { data, isLoading, error } = useURLs(filters);
+
   const deleteURLs = useDeleteURLs();
+
+  const hasSelectedOrAnalyzing =
+    selectedURLs.length > 0 || analyzingIDs.length > 0;
 
   const selectedCount = selectedURLs.length;
 
@@ -51,10 +57,9 @@ export function DashboardPage() {
     <div className="space-y-6">
       <DashboardHeader onAddClick={() => setIsAddDialogOpen(true)} />
 
-      {selectedCount > 0 && (
+      {hasSelectedOrAnalyzing && (
         <BulkActionsCard
           selectedIDs={selectedURLs}
-          urlItems={data?.items || []}
           onDeleteClick={() => setIsConfirmDialogOpen(true)}
         />
       )}

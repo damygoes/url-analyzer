@@ -8,9 +8,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon/Icon';
-import { CrawlProgress } from '@/features/urls/components/crawl/CrawlProgress';
+import { CrawlProgress } from '@/features/url-analysis/components/CrawlProgress';
 import { URLStatusBadge } from '@/features/urls/components/url-badge/URLStatusBadge';
-import { useRestartCrawlingURLs, useStartCrawlingURLs, useStopCrawlingURLs, useURLDetails } from '@/features/urls/hooks/useURLs';
+import {
+  useRestartCrawlingURLs,
+  useStartCrawlingURLs,
+  useStopCrawlingURLs,
+  useURLDetails,
+} from '@/features/urls/hooks/useURLs';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -59,7 +64,7 @@ export function URLDetailsPage() {
       await startCrawling.mutateAsync(url.id);
       toast.success('Analysis started');
     } catch (e) {
-        console.error("Error starting analysis:", e);
+      console.error('Error starting analysis:', e);
       toast.error('Failed to start analysis');
     }
   };
@@ -69,7 +74,7 @@ export function URLDetailsPage() {
       await restartCrawling.mutateAsync([url.id]);
       toast.success('Analysis restarted');
     } catch (e) {
-        console.error("Error restarting analysis:", e);
+      console.error('Error restarting analysis:', e);
       toast.error('Failed to restart analysis');
     }
   };
@@ -79,7 +84,7 @@ export function URLDetailsPage() {
       await stopCrawling.mutateAsync([url.id]);
       toast.success('Analysis stopped');
     } catch (e) {
-        console.error("Error stopping analysis:", e);
+      console.error('Error stopping analysis:', e);
       toast.error('Failed to stop analysis');
     }
   };
@@ -103,7 +108,7 @@ export function URLDetailsPage() {
               disabled={startCrawling.isPending}
               className="gap-2"
             >
-              <Icon name='play' />
+              <Icon name="play" />
               Start Analysis
             </Button>
           )}
@@ -115,7 +120,7 @@ export function URLDetailsPage() {
                 className="gap-2"
                 variant="destructive"
               >
-                <Icon name='stop' />
+                <Icon name="stop" />
                 Stop Analysis
               </Button>
               <Button
@@ -123,7 +128,7 @@ export function URLDetailsPage() {
                 disabled={restartCrawling.isPending}
                 className="gap-2"
               >
-                <Icon name='refresh' />
+                <Icon name="refresh" />
                 Restart Analysis
               </Button>
             </>
@@ -143,7 +148,7 @@ export function URLDetailsPage() {
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  <Icon name='externalLink' />
+                  <Icon name="externalLink" />
                 </a>
               </CardTitle>
               <CardDescription className="break-all">{url.url}</CardDescription>
@@ -162,8 +167,6 @@ export function URLDetailsPage() {
           )}
         </CardContent>
       </Card>
-
-      
     </div>
   );
 }
