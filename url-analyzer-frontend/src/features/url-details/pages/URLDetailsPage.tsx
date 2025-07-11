@@ -126,7 +126,7 @@ export function URLDetailsPage() {
             hasLoginForm={crawl_result.has_login_form}
           />
 
-          <ChartsSection />
+          <ChartsSection crawlResult={crawl_result} />
 
           <BrokenLinksSection brokenLinks={broken_links} />
         </>
