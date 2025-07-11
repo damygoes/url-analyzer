@@ -21,12 +21,12 @@ export function BrokenLinksTableRow({ link }: { link: BrokenLink }) {
         <div className="flex items-center gap-1">
           {link.is_internal ? (
             <>
-              <Icon name="link" size="md" />
+              <Icon name="link" size="sm" />
               <span className="text-sm">Internal</span>
             </>
           ) : (
             <>
-              <Icon name="externalLink" size="md" />
+              <Icon name="externalLink" size="sm" />
               <span className="text-sm">External</span>
             </>
           )}
@@ -44,7 +44,7 @@ export function BrokenLinksTableRow({ link }: { link: BrokenLink }) {
       </TableCell>
       <TableCell>
         <Link to={link.url} target="_blank" rel="noopener noreferrer">
-          <Button icon="externalLink" variant="link">
+          <Button icon="externalLink" variant='ghost' size='icon'>
             <span className="sr-only">Open link</span>
           </Button>
         </Link>
