@@ -1,3 +1,4 @@
+import { Checkbox } from '@/components/ui/checkbox';
 import { TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { SortOrder, URLSortField } from '@/shared/types/api';
 import { SortableHeader } from '../url-table/SortableHeader';
@@ -15,11 +16,21 @@ export function URLTableHeader({
   currentSortBy,
   currentSortOrder,
   onSort,
+  isAllSelected,
+  isSomeSelected,
+  onSelectAll,
 }: URLTableHeaderProps) {
   return (
     <TableHeader>
       <TableRow>
-        <TableHead className="w-12" /> {/* For the checkbox column */}
+        <TableHead className="w-12">
+          <Checkbox
+            checked={isAllSelected}
+            indeterminate={isSomeSelected && !isAllSelected}
+            onCheckedChange={onSelectAll}
+            aria-label="Select all URLs"
+          />
+        </TableHead>
         <TableHead>
           <SortableHeader
             label="URL"
@@ -75,7 +86,7 @@ export function URLTableHeader({
             onSort={onSort}
           />
         </TableHead>
-        <TableHead className="w-12" /> {/* For the external link icon */}
+        <TableHead className="w-12" />
       </TableRow>
     </TableHeader>
   );

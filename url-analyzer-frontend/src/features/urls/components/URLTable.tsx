@@ -4,10 +4,10 @@ import { useURLStore } from '@/features/urls/store/urlStore';
 import type { URLWithResult } from '@/shared/types/api';
 import { SortOrder, URLSortField } from '@/shared/types/api';
 import { useNavigate } from 'react-router-dom';
-import { URLTableHeader } from './table/URLTableHeader';
-import { URLTableRow } from './table/URLTableRow';
 import { PaginationControls } from './url-table/PaginationControls';
 import { URLTableEmptyState } from './url-table/URLTableEmptyState';
+import { URLTableHeader } from './url-table/URLTableHeader';
+import { URLTableRow } from './url-table/URLTableRow';
 import { URLTableSkeleton } from './url-table/URLTableSkeleton';
 
 interface URLTableProps {

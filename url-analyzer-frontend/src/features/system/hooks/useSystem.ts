@@ -15,7 +15,7 @@ export function useHealth() {
       const { data } = await apiClient.get<SystemHealth>('/health');
       return data;
     },
-    refetchInterval: 30000,
+    refetchInterval: 30000, // Refresh every 30 seconds
   });
 }
 
@@ -26,6 +26,6 @@ export function useStats() {
       const { data } = await apiClient.get<SystemStats>('/stats');
       return data;
     },
-    refetchInterval: 5000,
+    refetchInterval: 5000, // Refresh every 5 seconds
   });
 }

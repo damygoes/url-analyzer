@@ -32,7 +32,7 @@ export function SystemStatusCard({
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">Status</p>
             <div className="flex items-center gap-2">
-              {status === 'healthy' ? (
+              {status === 'ok' ? (
                 <>
                   <Icon name="completed" className="text-green-500" />
                   <span className="font-semibold text-green-500">Healthy</span>
@@ -51,7 +51,7 @@ export function SystemStatusCard({
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">Database</p>
             <div className="flex items-center gap-2">
-              {database === 'connected' ? (
+              {database === 'healthy' ? (
                 <>
                   <Icon name="database" className="text-green-500" />
                   <span className="font-semibold">Connected</span>

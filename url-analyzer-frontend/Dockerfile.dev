@@ -1,0 +1,17 @@
+# Use Node 18 with Alpine as base
+FROM node:lts-alpine
+
+# Enable Corepack and install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml ./
+
+RUN pnpm install
+
+COPY . .
+
+EXPOSE 5173
+
+CMD ["pnpm", "run", "dev"]
