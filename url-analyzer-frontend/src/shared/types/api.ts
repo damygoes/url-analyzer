@@ -214,4 +214,3 @@ export interface LinkData {
 // Utility types
 export type URLStatusFilter = URLStatus | 'all';
 export type CreateURLApiResponse = ApiResponse<CreateURLResponse>;
-export type URLDetailsApiResponse = ApiResponse<URLDetailsResponse>;

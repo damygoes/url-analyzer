@@ -5,9 +5,9 @@ import type {
   CreateURLRequest,
   DeleteURLsRequest,
   MessageResponse,
-  URLDetailsApiResponse,
+  URLDetailsResponse,
   URLFilter,
-  URLListApiResponse,
+  URLListApiResponse
 } from '@/shared/types/api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -54,10 +54,8 @@ export function useURLDetails(id: number) {
   return useQuery({
     queryKey: urlKeys.detail(id),
     queryFn: async () => {
-      const { data } = await apiClient.get<URLDetailsApiResponse>(
-        `/urls/${id}`
-      );
-      return data.data!;
+      const res = await apiClient.get<URLDetailsResponse>(`/urls/${id}`);
+      return res.data
     },
     enabled: !!id,
   });
