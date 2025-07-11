@@ -23,14 +23,14 @@ interface LinkDistributionChartProps {
 }
 
 const getChartData = (result: CrawlResult) => [
-  { name: 'internal', value: result.internal_links, fill: 'var(--chart-1)' },
+  { name: 'internal', value: result.internal_links, fill: 'var(--chart-3)' },
   { name: 'external', value: result.external_links, fill: 'var(--chart-2)' },
 ];
 
 const chartConfig = {
   internal: {
     label: 'Internal Links',
-    color: 'var(--chart-1)',
+    color: 'var(--chart-3)',
   },
   external: {
     label: 'External Links',
