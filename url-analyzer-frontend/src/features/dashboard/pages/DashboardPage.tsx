@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon/Icon';
 import { AddURLDialog } from '@/features/urls/components/AddURLDialog';
+import { URLFilters } from '@/features/urls/components/URLFilters';
 import { URLTable } from '@/features/urls/components/URLTable';
 import { useURLs } from '@/features/urls/hooks/useURLs';
 import { useURLStore } from '@/features/urls/store/urlStore';
@@ -19,8 +20,6 @@ export function DashboardPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { filters, selectedURLs, clearSelection } = useURLStore();
   const { data, isLoading, error } = useURLs(filters);
-
-  const items = Array.isArray(data?.data) ? data.data : [];
 
   const handleBulkDelete = async () => {
     if (selectedURLs.length === 0) return;
@@ -85,7 +84,7 @@ export function DashboardPage() {
           <CardDescription>View and manage all analyzed URLs</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Filters */}
+          <URLFilters />
 
           {error && (
             <Alert variant="destructive">
@@ -96,15 +95,14 @@ export function DashboardPage() {
             </Alert>
           )}
 
-          {/* URL Table (with dummy data for now) */}
           <URLTable
-            data={items}
+            data={data?.items || []}
             isLoading={isLoading}
             pagination={{
-              page: data?.data.page || 1,
-              pageSize: data?.data.page_size || 10,
-              total: data?.data.total || 0,
-              totalPages: data?.data.total_pages || 0,
+              page: data?.page || 1,
+              pageSize: data?.pageSize || 10,
+              total: data?.total || 0,
+              totalPages: data?.totalPages || 1,
             }}
           />
         </CardContent>

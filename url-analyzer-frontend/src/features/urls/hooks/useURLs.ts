@@ -35,11 +35,17 @@ export function useURLs(filters: URLFilter) {
       if (filters.sort_by) params.append('sort_by', filters.sort_by);
       if (filters.sort_order) params.append('sort_order', filters.sort_order);
 
-      const response = await apiClient.get<URLListApiResponse>(
-        `/urls?${params}`
-      );
+      const res = await apiClient.get<URLListApiResponse>(`/urls?${params}`);
 
-      return response.data;
+      const paginated = res.data;
+
+      return {
+        items: paginated.data,
+        page: paginated.page,
+        pageSize: paginated.page_size,
+        total: paginated.total,
+        totalPages: paginated.total_pages,
+      };
     },
   });
 }

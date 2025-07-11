@@ -174,7 +174,13 @@ export interface CreateURLResponse {
   url: URL;
 }
 
-export type URLListResponse = PaginatedResponse<URLWithResult>;
+export type URLListApiResponse = {
+  data: URLWithResult[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+};
 
 export interface URLDetailsResponse {
   url: URL;
@@ -208,5 +214,4 @@ export interface LinkData {
 // Utility types
 export type URLStatusFilter = URLStatus | 'all';
 export type CreateURLApiResponse = ApiResponse<CreateURLResponse>;
-export type URLListApiResponse = ApiResponse<URLListResponse>;
 export type URLDetailsApiResponse = ApiResponse<URLDetailsResponse>;
