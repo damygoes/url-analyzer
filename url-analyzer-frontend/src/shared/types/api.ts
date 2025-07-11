@@ -5,6 +5,8 @@ export enum URLStatus {
   ERROR = 'error',
 }
 
+export type URLStatusType = `${URLStatus}`;
+
 export enum CrawlStatus {
   STARTED = 'started',
   FETCHING = 'fetching',
@@ -14,6 +16,8 @@ export enum CrawlStatus {
   COMPLETED = 'completed',
   FAILED = 'failed',
 }
+
+export type CrawlJobStatusType = `${CrawlStatus}`;
 
 export enum SortOrder {
   ASC = 'asc',

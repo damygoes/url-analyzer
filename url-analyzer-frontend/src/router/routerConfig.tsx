@@ -4,7 +4,7 @@ import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
 import { AuthPage } from '@/features/auth/pages/AuthPage';
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage';
 import { HealthPage } from '@/features/system/pages/HealthPage';
-import { URLDetailsPage } from '@/features/urls/pages/URLDetailsPage';
+import { URLDetailsPage } from '@/features/url-details/pages/URLDetailsPage';
 import {
   createBrowserRouter,
   createRoutesFromElements,
