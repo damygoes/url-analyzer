@@ -25,5 +25,5 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
-  "include": ["vite.config.ts"]
+  "include": ["src", "vitest.setup.ts", "global.d.ts", "vite.config.ts"]
 }

@@ -44,7 +44,7 @@ export function BrokenLinksTableRow({ link }: { link: BrokenLink }) {
       </TableCell>
       <TableCell>
         <Link to={link.url} target="_blank" rel="noopener noreferrer">
-          <Button icon="externalLink" variant='ghost' size='icon'>
+          <Button icon="externalLink" variant="ghost" size="icon">
             <span className="sr-only">Open link</span>
           </Button>
         </Link>
