@@ -40,7 +40,9 @@ export function SystemStatusCard({
               ) : (
                 <>
                   <Icon name="error" className="text-destructive" />
-                  <span className="font-semibold text-destructive">Unhealthy</span>
+                  <span className="font-semibold text-destructive">
+                    Unhealthy
+                  </span>
                 </>
               )}
             </div>
@@ -57,7 +59,9 @@ export function SystemStatusCard({
               ) : (
                 <>
                   <Icon name="database" className="text-destructive" />
-                  <span className="font-semibold text-destructive">Disconnected</span>
+                  <span className="font-semibold text-destructive">
+                    Disconnected
+                  </span>
                 </>
               )}
             </div>

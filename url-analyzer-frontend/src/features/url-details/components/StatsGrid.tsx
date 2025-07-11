@@ -1,9 +1,4 @@
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getTotalLinks } from '../utils/urlDetailsUtils';
 
 interface StatsGridProps {
@@ -59,7 +54,9 @@ export function StatsGrid({
           <CardTitle className="text-sm font-medium">Login Form</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{hasLoginForm ? 'Yes' : 'No'}</div>
+          <div className="text-2xl font-bold">
+            {hasLoginForm ? 'Yes' : 'No'}
+          </div>
         </CardContent>
       </Card>
     </div>

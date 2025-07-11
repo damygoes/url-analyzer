@@ -38,7 +38,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function LinkDistributionChart({ crawlResult }: LinkDistributionChartProps) {
+export function LinkDistributionChart({
+  crawlResult,
+}: LinkDistributionChartProps) {
   const chartData = getChartData(crawlResult);
   const totalLinks = crawlResult.internal_links + crawlResult.external_links;
 
@@ -72,7 +74,10 @@ export function LinkDistributionChart({ crawlResult }: LinkDistributionChartProp
           className="mx-auto aspect-square max-h-[300px]"
         >
           <PieChart>
-            <ChartTooltip content={<ChartTooltipContent hideLabel />} cursor={false} />
+            <ChartTooltip
+              content={<ChartTooltipContent hideLabel />}
+              cursor={false}
+            />
             <Pie
               data={chartData}
               dataKey="value"

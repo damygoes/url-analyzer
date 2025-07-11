@@ -26,6 +26,6 @@ export function useStats() {
       const { data } = await apiClient.get<SystemStats>('/stats');
       return data;
     },
-    refetchInterval: 5000, 
+    refetchInterval: 5000,
   });
 }

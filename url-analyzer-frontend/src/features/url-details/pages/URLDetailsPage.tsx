@@ -38,11 +38,11 @@ export function URLDetailsPage() {
           onClick={() => navigate('/dashboard')}
           className="gap-2"
         >
-          <Icon name='left' />
+          <Icon name="left" />
           Back to Dashboard
         </Button>
         <Alert variant="destructive">
-          <Icon name='alert-circle' />
+          <Icon name="alert-circle" />
           <AlertDescription>
             Failed to load URL details. Please try again.
           </AlertDescription>
@@ -92,7 +92,7 @@ export function URLDetailsPage() {
           onClick={() => navigate('/dashboard')}
           className="gap-2"
         >
-          <Icon name='left' />
+          <Icon name="left" />
           Back to Dashboard
         </Button>
 

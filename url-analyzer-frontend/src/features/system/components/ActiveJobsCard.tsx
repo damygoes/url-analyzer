@@ -1,5 +1,11 @@
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon/Icon';
 
 interface Job {
@@ -36,7 +42,9 @@ export function ActiveJobsCard({ jobs }: ActiveJobsCardProps) {
                     Status: {job.status} • Progress: {job.progress}%
                   </p>
                   {job.message && (
-                    <p className="text-xs text-muted-foreground">{job.message}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {job.message}
+                    </p>
                   )}
                 </div>
                 <Badge>{job.status}</Badge>

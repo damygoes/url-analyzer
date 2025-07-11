@@ -54,7 +54,7 @@ export function URLInfoCard({
         {jobStatus && isRunning && <CrawlProgress status={jobStatus} />}
         {errorMessage && (
           <Alert variant="destructive">
-            <Icon name='alert-circle' />
+            <Icon name="alert-circle" />
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}

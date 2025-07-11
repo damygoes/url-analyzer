@@ -1,16 +1,16 @@
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import {
-    type ChartConfig,
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
 } from '@/components/ui/chart';
 import type { CrawlResult } from '@/shared/types/api';
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
@@ -61,9 +61,7 @@ export function HeadingDistributionChart({
     <Card>
       <CardHeader>
         <CardTitle>Heading Distribution</CardTitle>
-        <CardDescription>
-          Total: {totalHeadings} heading tags
-        </CardDescription>
+        <CardDescription>Total: {totalHeadings} heading tags</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="max-h-[300px]">
@@ -81,12 +79,11 @@ export function HeadingDistributionChart({
               tickMargin={10}
               axisLine={false}
             />
-            <ChartTooltip content={<ChartTooltipContent hideLabel />} cursor={false} />
-            <Bar
-              dataKey="count"
-              fill="var(--color-count)"
-              radius={5}
+            <ChartTooltip
+              content={<ChartTooltipContent hideLabel />}
+              cursor={false}
             />
+            <Bar dataKey="count" fill="var(--color-count)" radius={5} />
           </BarChart>
         </ChartContainer>
       </CardContent>

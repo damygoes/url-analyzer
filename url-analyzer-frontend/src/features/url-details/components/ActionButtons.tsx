@@ -22,7 +22,12 @@ export function ActionButtons({
   return (
     <div className="flex gap-2">
       {!isRunning && (
-        <Button icon='play' onClick={onStart} disabled={isStartLoading} className="gap-2">
+        <Button
+          icon="play"
+          onClick={onStart}
+          disabled={isStartLoading}
+          className="gap-2"
+        >
           Start Analysis
         </Button>
       )}
@@ -33,11 +38,16 @@ export function ActionButtons({
             disabled={isStopLoading}
             className="gap-2"
             variant="destructive"
-            icon='stop'
+            icon="stop"
           >
             Stop Analysis
           </Button>
-          <Button icon='refresh' onClick={onRestart} disabled={isRestartLoading} className="gap-2">
+          <Button
+            icon="refresh"
+            onClick={onRestart}
+            disabled={isRestartLoading}
+            className="gap-2"
+          >
             Restart Analysis
           </Button>
         </>

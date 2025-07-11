@@ -44,7 +44,9 @@ export function HealthPage() {
         </>
       )}
 
-      {health?.database_error && <DatabaseErrorAlert error={health.database_error} />}
+      {health?.database_error && (
+        <DatabaseErrorAlert error={health.database_error} />
+      )}
     </div>
   );
 }
