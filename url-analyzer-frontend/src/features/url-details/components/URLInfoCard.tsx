@@ -1,16 +1,16 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon/Icon';
 import { CrawlProgress } from '@/features/url-analysis/components/CrawlProgress';
 import { URLStatusBadge } from '@/features/urls/components/url-badge/URLStatusBadge';
 import type { CrawlJobStatus, URLStatus } from '@/shared/types/api';
-import { AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface URLInfoCardProps {
   url: string;
@@ -36,14 +36,14 @@ export function URLInfoCard({
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2">
               {title || 'Untitled Page'}
-              <a
-                href={url}
+              <Link
+                to={url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground"
               >
                 <Icon name="externalLink" />
-              </a>
+              </Link>
             </CardTitle>
             <CardDescription className="break-all">{url}</CardDescription>
           </div>
@@ -54,7 +54,7 @@ export function URLInfoCard({
         {jobStatus && isRunning && <CrawlProgress status={jobStatus} />}
         {errorMessage && (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <Icon name='alert-circle' />
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}
