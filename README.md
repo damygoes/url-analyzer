@@ -125,6 +125,7 @@ go test -cover ./...
 
 ## 🔐 Environment Variables
 1. **Backend**
+```bash
 | Variable      | Description                 |
 |---------------|-----------------------------|
 | `DB_HOST`     | MySQL host (`mysql`)        |
@@ -134,13 +135,14 @@ go test -cover ./...
 | `DB_NAME`     | Database name               |
 | `API_KEY`     | API key for requests        |
 | `PORT`        | Backend server port         |
-
+```
 
 2. **Frontend**
+```bash
 | Variable        | Description              |
 |-----------------|--------------------------|
 | `VITE_API_URL`  | Backend API base URL     |
-
+```
 
 ## 🔧 API Overview
 All requests must include:
@@ -170,8 +172,9 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 
 ## 👤 Author
-Damilola Bada
-[github.com/YOUR_USERNAME](https://github.com/damygoes)
+Damilola Bada <br/>
+[Github](https://github.com/damygoes) | 
+[LinkedIn](https://www.linkedin.com/in/damilolabada/)
 
 ## 🙏 Acknowledgements
 
