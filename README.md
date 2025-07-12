@@ -106,7 +106,6 @@ A full-stack web application for crawling and analyzing websites. It detects bro
     ├── package.json
     ├── pnpm-lock.yaml
     ├── public
-    │   └── vite.svg
     ├── src
     │   ├── App.tsx
     │   ├── assets
