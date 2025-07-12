@@ -13,7 +13,6 @@ interface BrokenLinksSectionProps {
 }
 
 export function BrokenLinksSection({ brokenLinks }: BrokenLinksSectionProps) {
-
   const brokenLinksCount = brokenLinks ? brokenLinks.length : 0;
 
   return (
@@ -25,7 +24,11 @@ export function BrokenLinksSection({ brokenLinks }: BrokenLinksSectionProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {!brokenLinks ? <p> No broken links  found </p> : <BrokenLinksTable links={brokenLinks} />}
+        {!brokenLinks ? (
+          <p> No broken links found </p>
+        ) : (
+          <BrokenLinksTable links={brokenLinks} />
+        )}
       </CardContent>
     </Card>
   );

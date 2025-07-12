@@ -58,7 +58,18 @@ export function URLInfoCard({
         </div>
       </CardHeader>
       <CardContent>
-        {jobStatus && isRunning && <CrawlProgress status={jobStatus} />}
+        {isRunning && (
+          <>
+            {jobStatus ? (
+              <CrawlProgress status={jobStatus} />
+            ) : (
+              <div className="flex items-center text-sm text-muted-foreground gap-2">
+                <Icon name="loading" className="animate-spin h-4 w-4" />
+                Preparing analysis...
+              </div>
+            )}
+          </>
+        )}
         {errorMessage && (
           <Alert variant="destructive">
             <Icon name="alert-circle" />

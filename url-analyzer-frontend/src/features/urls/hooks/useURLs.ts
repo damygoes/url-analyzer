@@ -1,3 +1,4 @@
+import { activeCrawlStatuses } from '@/features/url-analysis/constants';
 import apiClient from '@/shared/api/client';
 import type {
   CrawlJobStatus,
@@ -10,7 +11,6 @@ import type {
   URLFilter,
   URLListApiResponse,
 } from '@/shared/types/api';
-import { CrawlStatus } from '@/shared/types/api';
 import {
   useMutation,
   useQuery,
@@ -170,14 +170,7 @@ export function useCrawlStatus(id: number, enabled = false) {
       }
       const data = query.state.data;
       if (!data) return 1000;
-      const activeStatuses = new Set<CrawlStatus>([
-        CrawlStatus.STARTED,
-        CrawlStatus.FETCHING,
-        CrawlStatus.PARSING,
-        CrawlStatus.ANALYZING,
-        CrawlStatus.CHECKING_LINKS,
-      ]);
-      return activeStatuses.has(data.status) ? 1000 : false;
+      return activeCrawlStatuses.has(data.status) ? 1000 : false;
     },
     retry: false,
     onError: (error: Error) => {

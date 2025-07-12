@@ -11,14 +11,26 @@ import { URLInfoCard } from '../components/URLInfoCard';
 import { BrokenLinksSection } from '../sections/BrokenLinksSection';
 import { ChartsSection } from '../sections/ChartsSection';
 
+import { activeCrawlStatuses } from '@/features/url-analysis/constants';
+
 export function URLDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data, isLoading, error } = useURLDetails(Number(id));
 
   const url = data?.url;
-  const isRunning = url?.status === 'running';
-  const liveJobStatus = useCrawlStatus(url?.id ?? 0, !!isRunning).data;
+
+  // Use liveJobStatus from hook
+  const liveJobStatus = useCrawlStatus(url?.id ?? 0, !!url)?.data;
+
+  // Determine if crawling is running by checking live job status
+  const isRunning = liveJobStatus
+    ? activeCrawlStatuses.has(liveJobStatus.status)
+    : false;
+
+  // console.log("url status:", url?.status);
+  // console.log("live job status:", liveJobStatus);
+  // console.log("is running:", isRunning);
 
   if (isLoading) {
     return <URLDetailsPageSkeleton />;
@@ -59,7 +71,7 @@ export function URLDetailsPage() {
           Back to Dashboard
         </Button>
 
-        <ActionButtons urlId={url.id} errorMessage={url.error_message} />
+        <ActionButtons urlId={url.id} status={url.status} />
       </div>
 
       <URLInfoCard
