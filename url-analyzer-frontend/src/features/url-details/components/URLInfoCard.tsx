@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon/Icon';
 import { CrawlProgress } from '@/features/url-analysis/components/CrawlProgress';
+import { mapCrawlToURLStatus } from '@/features/url-analysis/utils/mapCrawlToURLStatus';
 import { URLStatusBadge } from '@/features/urls/components/url-badge/URLStatusBadge';
 import type { CrawlJobStatus, URLStatus } from '@/shared/types/api';
 import { Link } from 'react-router-dom';
@@ -47,7 +48,13 @@ export function URLInfoCard({
             </CardTitle>
             <CardDescription className="break-all">{url}</CardDescription>
           </div>
-          <URLStatusBadge status={status} />
+          <URLStatusBadge
+            status={
+              jobStatus && isRunning
+                ? mapCrawlToURLStatus(jobStatus.status)
+                : status
+            }
+          />
         </div>
       </CardHeader>
       <CardContent>

@@ -14,22 +14,22 @@ const mockUrls = [
       external_links: 2,
       broken_links_count: 0,
     },
-    status: URLStatus.COMPLETED
+    status: URLStatus.COMPLETED,
   },
 ];
 
 vi.mock('@/features/urls/hooks/useURLs', () => ({
   useURLs: () => ({
-      data: {
-        items: mockUrls,
-        page: 1,
-        pageSize: 10,
-        total: 1,
-        totalPages: 1,
-      },
-      isLoading: false,
-      isError: false,
-    }),
+    data: {
+      items: mockUrls,
+      page: 1,
+      pageSize: 10,
+      total: 1,
+      totalPages: 1,
+    },
+    isLoading: false,
+    isError: false,
+  }),
   useDeleteURLs: () => ({ mutate: vi.fn(), isLoading: false }),
   useCreateURL: () => ({ mutate: vi.fn(), isLoading: false }),
   useCrawlStatus: () => ({ data: null, isLoading: false }),
@@ -37,7 +37,6 @@ vi.mock('@/features/urls/hooks/useURLs', () => ({
   useRestartCrawlingURLs: () => ({ mutate: vi.fn(), isLoading: false }),
   useStopCrawlingURLs: () => ({ mutate: vi.fn(), isLoading: false }),
 }));
-
 
 describe('<DashboardPage />', () => {
   it('renders URL table with fetched data', () => {

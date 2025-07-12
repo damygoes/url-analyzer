@@ -1,69 +1,180 @@
-# React + TypeScript + Vite
+# URL Analyzer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack web application for crawling and analyzing websites. It detects broken links, extracts HTML metadata, visualizes page structure, and provides real-time crawling status.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+- **URL Analysis**: Crawl and inspect any URL
+- **Live Crawl Updates**: See real-time crawling progress
+- **Metrics Extraction**:
+  - HTML version
+  - Heading structure (H1–H6)
+  - Internal & external links
+  - Broken links with status codes
+  - Login form detection
+- **Interactive Dashboard**:
+  - Filterable & sortable URL list
+  - Bulk actions: re-analyze, delete
+  - Responsive UI
+- **Data Visualization**: Recharts-powered graphs for links, headings, and more
+- **Authentication**: API key-based access
+- **Dockerized Dev Environment**
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠 Tech Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### Frontend
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS + shadcn/ui
+- React Router v6
+- TanStack Query
+- Zustand
+- Recharts
+- React Hook Form + Zod
+- Axios
+
+### Backend
+
+- Go (Gin framework)
+- MySQL 8.0
+- Goroutines for concurrency
+- JWT-style API key validation
+
+### DevOps
+
+- Docker & Docker Compose
+- Volumes for persistent DB storage
+
+---
+
+## 📦 Project Structure
+
+
+---
+
+## 🐳 Run with Docker (Recommended)
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/YOUR_USERNAME/url-analyzer.git
+cd url-analyzer
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. **Start all services**
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+docker-compose up --build
 ```
+
+3. **Access the app**
+
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- Default API Key: your-secure-api-key-here (set in docker-compose.yml)
+
+## 💻 Local Development (without Docker)
+
+1. **Backend (Go)**
+
+```bash
+cd url-analyzer-backend
+go mod download
+
+# Create DB manually or use Docker MySQL
+mysql -u root -p -e "CREATE DATABASE url_analyzer;"
+
+# Load initial tables
+mysql -u root -p url_analyzer < migrations/001_create_tables.sql
+
+cp .env.example .env
+go run main.go
+```
+
+2. **Frontend (Vite + React)**
+
+```bash
+cd url-analyzer-frontend
+pnpm install
+
+cp .env.example .env
+pnpm run dev
+```
+
+## 🧪 Running Tests
+
+1. **Frontend**
+
+```bash
+cd url-analyzer-frontend
+pnpm run test           # Run tests
+```
+
+2. **Backend**
+
+```bash
+cd url-analyzer-backend
+go test ./...
+go test -cover ./...
+```
+
+## 🔐 Environment Variables
+1. **Backend**
+| Variable      | Description                 |
+|---------------|-----------------------------|
+| `DB_HOST`     | MySQL host (`mysql`)        |
+| `DB_PORT`     | MySQL port (`3306`)         |
+| `DB_USER`     | MySQL user (`root`)         |
+| `DB_PASSWORD` | MySQL password              |
+| `DB_NAME`     | Database name               |
+| `API_KEY`     | API key for requests        |
+| `PORT`        | Backend server port         |
+
+
+2. **Frontend**
+| Variable        | Description              |
+|-----------------|--------------------------|
+| `VITE_API_URL`  | Backend API base URL     |
+
+
+## 🔧 API Overview
+All requests must include:
+
+```http
+Authorization: your-secure-api-key-here
+```
+
+### API Endpoints
+
+#### URLs
+- `GET /api/urls` – List URLs  
+- `POST /api/urls` – Create a new crawl job  
+- `GET /api/urls/:id` – Get crawl details  
+- `PUT /api/urls/:id/start` – Start crawling  
+- `PUT /api/urls/:id/stop` – Stop crawl  
+- `PUT /api/urls/:id/restart` – Restart crawl  
+- `GET /api/urls/:id/status` – Poll job status  
+- `DELETE /api/urls` – Bulk delete  
+
+#### System
+- `GET /api/health` – Health check  
+- `GET /api/stats` – System usage stats  
+
+## 📝 License
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+
+## 👤 Author
+Damilola Bada
+[github.com/YOUR_USERNAME](https://github.com/damygoes)
+
+## 🙏 Acknowledgements
+
+- [shadcn/ui](https://ui.shadcn.com) — beautiful and accessible UI components
+- [TanStack Query](https://tanstack.com/query) — powerful data synchronization for React
+- [Gin Web Framework](https://gin-gonic.com/) — fast, minimalistic Go backend framework

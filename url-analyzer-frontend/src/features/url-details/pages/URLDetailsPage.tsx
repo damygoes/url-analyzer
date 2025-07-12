@@ -1,15 +1,9 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'sonner';
 
 import { Icon } from '@/components/ui/icon/Icon';
-import {
-  useRestartCrawlingURLs,
-  useStartCrawlingURLs,
-  useStopCrawlingURLs,
-  useURLDetails,
-} from '@/features/urls/hooks/useURLs';
+import { useCrawlStatus, useURLDetails } from '@/features/urls/hooks/useURLs';
 import { ActionButtons } from '../components/ActionButtons';
 import { StatsGrid } from '../components/StatsGrid';
 import { URLDetailsPageSkeleton } from '../components/URLDetailsPageSkeleton';
@@ -22,15 +16,15 @@ export function URLDetailsPage() {
   const navigate = useNavigate();
   const { data, isLoading, error } = useURLDetails(Number(id));
 
-  const startCrawling = useStartCrawlingURLs();
-  const restartCrawling = useRestartCrawlingURLs();
-  const stopCrawling = useStopCrawlingURLs();
+  const url = data?.url;
+  const isRunning = url?.status === 'running';
+  const liveJobStatus = useCrawlStatus(url?.id ?? 0, !!isRunning).data;
 
   if (isLoading) {
     return <URLDetailsPageSkeleton />;
   }
 
-  if (error || !data) {
+  if (error || !data || !url) {
     return (
       <div className="space-y-4">
         <Button
@@ -51,38 +45,7 @@ export function URLDetailsPage() {
     );
   }
 
-  const { url, crawl_result, job_status, broken_links } = data;
-  const isRunning = url.status === 'running';
-
-  const handleStart = async () => {
-    try {
-      await startCrawling.mutateAsync(url.id);
-      toast.success('Analysis started');
-    } catch (e) {
-      console.error('Error starting analysis:', e);
-      toast.error('Failed to start analysis');
-    }
-  };
-
-  const handleRestart = async () => {
-    try {
-      await restartCrawling.mutateAsync([url.id]);
-      toast.success('Analysis restarted');
-    } catch (e) {
-      console.error('Error restarting analysis:', e);
-      toast.error('Failed to restart analysis');
-    }
-  };
-
-  const handleStop = async () => {
-    try {
-      await stopCrawling.mutateAsync([url.id]);
-      toast.success('Analysis stopped');
-    } catch (e) {
-      console.error('Error stopping analysis:', e);
-      toast.error('Failed to stop analysis');
-    }
-  };
+  const { crawl_result, job_status, broken_links } = data;
 
   return (
     <div className="space-y-6">
@@ -96,22 +59,14 @@ export function URLDetailsPage() {
           Back to Dashboard
         </Button>
 
-        <ActionButtons
-          isRunning={isRunning}
-          onStart={handleStart}
-          onStop={handleStop}
-          onRestart={handleRestart}
-          isStartLoading={startCrawling.isPending}
-          isStopLoading={stopCrawling.isPending}
-          isRestartLoading={restartCrawling.isPending}
-        />
+        <ActionButtons urlId={url.id} errorMessage={url.error_message} />
       </div>
 
       <URLInfoCard
         url={url.url}
         title={crawl_result?.title || null}
         status={url.status}
-        jobStatus={job_status}
+        jobStatus={liveJobStatus || job_status}
         isRunning={isRunning}
         errorMessage={url.error_message}
       />

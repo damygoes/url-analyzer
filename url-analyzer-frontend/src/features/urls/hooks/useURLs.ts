@@ -1,5 +1,6 @@
 import apiClient from '@/shared/api/client';
 import type {
+  CrawlJobStatus,
   CrawlStatusResponse,
   CreateURLApiResponse,
   CreateURLRequest,
@@ -9,7 +10,13 @@ import type {
   URLFilter,
   URLListApiResponse,
 } from '@/shared/types/api';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CrawlStatus } from '@/shared/types/api';
+import {
+  Query,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 // Query Keys
 export const urlKeys = {
@@ -148,7 +155,7 @@ export function useStopCrawlingURLs() {
 }
 
 export function useCrawlStatus(id: number, enabled = false) {
-  return useQuery({
+  return useQuery<CrawlJobStatus>({
     queryKey: urlKeys.crawlStatus(id),
     queryFn: async () => {
       const { data } = await apiClient.get<CrawlStatusResponse>(
@@ -157,6 +164,20 @@ export function useCrawlStatus(id: number, enabled = false) {
       return data.job_status;
     },
     enabled: !!id && enabled,
-    refetchInterval: 1000, // Poll every second
+    refetchInterval: (query: Query<CrawlJobStatus, Error>) => {
+      const data = query.state.data;
+
+      if (!data) return 1000;
+
+      const activeStatuses = new Set<CrawlStatus>([
+        CrawlStatus.STARTED,
+        CrawlStatus.FETCHING,
+        CrawlStatus.PARSING,
+        CrawlStatus.ANALYZING,
+        CrawlStatus.CHECKING_LINKS,
+      ]);
+
+      return activeStatuses.has(data.status) ? 1000 : false;
+    },
   });
 }
