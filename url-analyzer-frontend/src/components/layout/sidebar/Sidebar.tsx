@@ -5,9 +5,6 @@ import { useState } from 'react';
 import { SidebarMobileHeader } from './SidebarMobileHeader';
 import { SidebarNavLinks } from './SidebarNavLinks';
 
-
-
-
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' as IconName },
   { name: 'System Health', href: '/health', icon: 'activity' as IconName },

@@ -12,10 +12,10 @@ import type {
 } from '@/shared/types/api';
 import { CrawlStatus } from '@/shared/types/api';
 import {
-  Query,
   useMutation,
   useQuery,
   useQueryClient,
+  type UseQueryOptions,
 } from '@tanstack/react-query';
 
 // Query Keys
@@ -155,7 +155,7 @@ export function useStopCrawlingURLs() {
 }
 
 export function useCrawlStatus(id: number, enabled = false) {
-  return useQuery<CrawlJobStatus>({
+  return useQuery<CrawlJobStatus, Error>({
     queryKey: urlKeys.crawlStatus(id),
     queryFn: async () => {
       const { data } = await apiClient.get<CrawlStatusResponse>(
@@ -164,11 +164,12 @@ export function useCrawlStatus(id: number, enabled = false) {
       return data.job_status;
     },
     enabled: !!id && enabled,
-    refetchInterval: (query: Query<CrawlJobStatus, Error>) => {
+    refetchInterval: (query) => {
+      if (query.state.status === 'error') {
+        return false;
+      }
       const data = query.state.data;
-
       if (!data) return 1000;
-
       const activeStatuses = new Set<CrawlStatus>([
         CrawlStatus.STARTED,
         CrawlStatus.FETCHING,
@@ -176,8 +177,11 @@ export function useCrawlStatus(id: number, enabled = false) {
         CrawlStatus.ANALYZING,
         CrawlStatus.CHECKING_LINKS,
       ]);
-
       return activeStatuses.has(data.status) ? 1000 : false;
     },
-  });
+    retry: false,
+    onError: (error: Error) => {
+      console.error('Failed to fetch crawl status:', error.message);
+    },
+  } as UseQueryOptions<CrawlJobStatus, Error>);
 }

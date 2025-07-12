@@ -10,7 +10,6 @@ import { URLTableHeader } from './URLTableHeader';
 import { URLTableRow } from './URLTableRow';
 import { URLTableSkeleton } from './URLTableSkeleton';
 
-
 interface URLTableProps {
   data: URLWithResult[];
   isLoading: boolean;
