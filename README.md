@@ -54,6 +54,205 @@ A full-stack web application for crawling and analyzing websites. It detects bro
 
 ## 📦 Project Structure
 
+```bash
+.
+├── README.md
+├── docker-compose.yml
+├── url-analyzer-backend
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── cmd
+│   │   └── server
+│   │       └── main.go
+│   ├── docs
+│   │   ├── docs.go
+│   │   ├── swagger.json
+│   │   └── swagger.yaml
+│   ├── go.mod
+│   ├── go.sum
+│   ├── internal
+│   │   ├── database
+│   │   │   ├── connection.go
+│   │   │   ├── init.go
+│   │   │   ├── interfaces.go
+│   │   │   ├── repository.go
+│   │   │   ├── repository_test.go
+│   │   │   └── utils.go
+│   │   ├── handlers
+│   │   │   ├── system.go
+│   │   │   ├── urls.go
+│   │   │   └── urls_test.go
+│   │   ├── middleware
+│   │   │   └── auth.go
+│   │   ├── models
+│   │   │   └── models.go
+│   │   └── services
+│   │       ├── crawler_service.go
+│   │       ├── crawler_service_test.go
+│   │       └── interfaces.go
+│   ├── migrations
+│   │   └── 001_initial_schema.sql
+│   └── pkg
+│       └── crawler
+│           ├── crawler.go
+│           ├── crawler_test.go
+│           └── debug_test.go
+└── url-analyzer-frontend
+    ├── Dockerfile.dev
+    ├── components.json
+    ├── eslint.config.js
+    ├── global.d.ts
+    ├── index.html
+    ├── package.json
+    ├── pnpm-lock.yaml
+    ├── public
+    │   └── vite.svg
+    ├── src
+    │   ├── App.tsx
+    │   ├── assets
+    │   ├── components
+    │   │   ├── errors
+    │   │   │   ├── AppErrorBoundary.tsx
+    │   │   │   └── LoadingComponent.tsx
+    │   │   ├── layout
+    │   │   │   ├── AppName.tsx
+    │   │   │   ├── Header.tsx
+    │   │   │   ├── RootLayout.tsx
+    │   │   │   ├── Sidebar.tsx
+    │   │   │   └── sidebar
+    │   │   │       ├── SidebarCollapseToggle.tsx
+    │   │   │       ├── SidebarMobileHeader.tsx
+    │   │   │       └── SidebarNavLinks.tsx
+    │   │   ├── shared
+    │   │   │   └── ConfirmDialog.tsx
+    │   │   └── ui
+    │   │       ├── alert.tsx
+    │   │       ├── badge.tsx
+    │   │       ├── button.tsx
+    │   │       ├── card.tsx
+    │   │       ├── chart.tsx
+    │   │       ├── checkbox.tsx
+    │   │       ├── dialog.tsx
+    │   │       ├── form.tsx
+    │   │       ├── icon
+    │   │       │   ├── Icon.tsx
+    │   │       │   └── iconMapping.ts
+    │   │       ├── input.tsx
+    │   │       ├── label.tsx
+    │   │       ├── pagination.tsx
+    │   │       ├── progress.tsx
+    │   │       ├── scroll-area.tsx
+    │   │       ├── select.tsx
+    │   │       ├── skeleton.tsx
+    │   │       ├── sonner.tsx
+    │   │       ├── table.tsx
+    │   │       └── tooltip.tsx
+    │   ├── features
+    │   │   ├── auth
+    │   │   │   ├── components
+    │   │   │   │   ├── AuthForm.tsx
+    │   │   │   │   ├── LogoutButton.tsx
+    │   │   │   │   └── ProtectedRoute.tsx
+    │   │   │   ├── hooks
+    │   │   │   │   └── useAuthSubmit.ts
+    │   │   │   ├── pages
+    │   │   │   │   └── AuthPage.tsx
+    │   │   │   └── store
+    │   │   │       └── authStore.ts
+    │   │   ├── dashboard
+    │   │   │   ├── __tests__
+    │   │   │   │   └── DashboardPage.test.tsx
+    │   │   │   ├── components
+    │   │   │   │   ├── BulkActionsCard.tsx
+    │   │   │   │   ├── DashboardHeader.tsx
+    │   │   │   │   └── URLTableSection.tsx
+    │   │   │   └── pages
+    │   │   │       └── DashboardPage.tsx
+    │   │   ├── system
+    │   │   │   ├── components
+    │   │   │   │   ├── ActiveJobsCard.tsx
+    │   │   │   │   ├── CrawlerConfigCard.tsx
+    │   │   │   │   ├── DatabaseErrorAlert.tsx
+    │   │   │   │   ├── DatabaseStatsCard.tsx
+    │   │   │   │   ├── HealthPageSkeleton.tsx
+    │   │   │   │   └── SystemStatusCard.tsx
+    │   │   │   ├── hooks
+    │   │   │   │   └── useSystem.ts
+    │   │   │   ├── pages
+    │   │   │   │   └── HealthPage.tsx
+    │   │   │   └── utils
+    │   │   │       └── systemUtils.ts
+    │   │   ├── url-analysis
+    │   │   │   ├── components
+    │   │   │   │   ├── CrawlProgress.tsx
+    │   │   │   │   ├── CrawlStatusLabel.tsx
+    │   │   │   │   └── URLCrawlStatusCell.tsx
+    │   │   │   ├── store
+    │   │   │   │   └── urlAnalysisStore.ts
+    │   │   │   └── utils
+    │   │   │       ├── crawlStatusConfig.ts
+    │   │   │       ├── isCrawlResultEmpty.ts
+    │   │   │       └── mapCrawlToURLStatus.ts
+    │   │   ├── url-details
+    │   │   │   ├── components
+    │   │   │   │   ├── ActionButtons.tsx
+    │   │   │   │   ├── EmptyChartsSection.tsx
+    │   │   │   │   ├── StatsGrid.tsx
+    │   │   │   │   ├── URLDetailsPageSkeleton.tsx
+    │   │   │   │   ├── URLInfoCard.tsx
+    │   │   │   │   ├── broken-links
+    │   │   │   │   └── charts
+    │   │   │   ├── pages
+    │   │   │   │   └── URLDetailsPage.tsx
+    │   │   │   ├── sections
+    │   │   │   │   ├── BrokenLinksSection.tsx
+    │   │   │   │   └── ChartsSection.tsx
+    │   │   │   └── utils
+    │   │   │       └── urlDetailsUtils.ts
+    │   │   └── urls
+    │   │       ├── components
+    │   │       │   ├── AddURLDialog.tsx
+    │   │       │   ├── URLFilters.tsx
+    │   │       │   ├── URLTable.tsx
+    │   │       │   ├── url-badge
+    │   │       │   └── url-table
+    │   │       ├── hooks
+    │   │       │   └── useURLs.ts
+    │   │       ├── store
+    │   │       │   └── urlStore.ts
+    │   │       ├── types.ts
+    │   │       └── utils
+    │   │           └── urlStatusConfig.ts
+    │   ├── hooks
+    │   │   └── useDebounce.ts
+    │   ├── index.css
+    │   ├── lib
+    │   │   └── utils.ts
+    │   ├── main.tsx
+    │   ├── mocks
+    │   │   ├── handlers.ts
+    │   │   └── node.ts
+    │   ├── router
+    │   │   ├── Router.tsx
+    │   │   └── routerConfig.tsx
+    │   ├── shared
+    │   │   ├── api
+    │   │   │   └── client.ts
+    │   │   ├── types
+    │   │   │   └── api.ts
+    │   │   └── utils
+    │   │       ├── getErrorMessage.ts
+    │   │       └── pluralize.ts
+    │   ├── test
+    │   │   └── test-utils.tsx
+    │   └── vite-env.d.ts
+    ├── tsconfig.app.json
+    ├── tsconfig.json
+    ├── tsconfig.node.json
+    ├── vite.config.ts
+    ├── vitest.config.ts
+    └── vitest.setup.ts
+```
 
 ---
 
@@ -125,6 +324,7 @@ go test -cover ./...
 
 ## 🔐 Environment Variables
 1. **Backend**
+
 ```bash
 | Variable      | Description                 |
 |---------------|-----------------------------|
@@ -138,6 +338,7 @@ go test -cover ./...
 ```
 
 2. **Frontend**
+
 ```bash
 | Variable        | Description              |
 |-----------------|--------------------------|
@@ -145,6 +346,7 @@ go test -cover ./...
 ```
 
 ## 🔧 API Overview
+
 All requests must include:
 
 ```http
@@ -175,9 +377,3 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 Damilola Bada <br/>
 [Github](https://github.com/damygoes) | 
 [LinkedIn](https://www.linkedin.com/in/damilolabada/)
-
-## 🙏 Acknowledgements
-
-- [shadcn/ui](https://ui.shadcn.com) — beautiful and accessible UI components
-- [TanStack Query](https://tanstack.com/query) — powerful data synchronization for React
-- [Gin Web Framework](https://gin-gonic.com/) — fast, minimalistic Go backend framework
