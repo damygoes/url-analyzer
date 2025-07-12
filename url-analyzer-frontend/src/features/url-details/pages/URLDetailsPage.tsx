@@ -20,17 +20,11 @@ export function URLDetailsPage() {
 
   const url = data?.url;
 
-  // Use liveJobStatus from hook
   const liveJobStatus = useCrawlStatus(url?.id ?? 0, !!url)?.data;
 
-  // Determine if crawling is running by checking live job status
   const isRunning = liveJobStatus
     ? activeCrawlStatuses.has(liveJobStatus.status)
     : false;
-
-  // console.log("url status:", url?.status);
-  // console.log("live job status:", liveJobStatus);
-  // console.log("is running:", isRunning);
 
   if (isLoading) {
     return <URLDetailsPageSkeleton />;
