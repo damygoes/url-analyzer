@@ -108,7 +108,6 @@ A full-stack web application for crawling and analyzing websites. It detects bro
     ├── public
     ├── src
     │   ├── App.tsx
-    │   ├── assets
     │   ├── components
     │   │   ├── errors
     │   │   │   ├── AppErrorBoundary.tsx
@@ -200,7 +199,13 @@ A full-stack web application for crawling and analyzing websites. It detects bro
     │   │   │   │   ├── URLDetailsPageSkeleton.tsx
     │   │   │   │   ├── URLInfoCard.tsx
     │   │   │   │   ├── broken-links
+    │   │   │   │   │   ├── BrokenLinksTable.tsx
+    │   │   │   │   │   ├── BrokenLinksTableHeader.tsx
+    │   │   │   │   │   ├── BrokenLinksTableRow.tsx
+    │   │   │   │   │   └── getStatusUtils.ts
     │   │   │   │   └── charts
+    │   │   │   │       ├── HeadingDistributionChart.tsx
+    │   │   │   │       └── LinkDistributionChart.tsx
     │   │   │   ├── pages
     │   │   │   │   └── URLDetailsPage.tsx
     │   │   │   ├── sections
@@ -212,9 +217,17 @@ A full-stack web application for crawling and analyzing websites. It detects bro
     │   │       ├── components
     │   │       │   ├── AddURLDialog.tsx
     │   │       │   ├── URLFilters.tsx
-    │   │       │   ├── URLTable.tsx
     │   │       │   ├── url-badge
+    │   │       │   │   ├── StatusBadge.tsx
+    │   │       │   │   └── URLStatusBadge.tsx
     │   │       │   └── url-table
+    │   │       │       ├── PaginationControls.tsx
+    │   │       │       ├── SortableHeader.tsx
+    │   │       │       ├── URLTable.tsx
+    │   │       │       ├── URLTableEmptyState.tsx
+    │   │       │       ├── URLTableHeader.tsx
+    │   │       │       ├── URLTableRow.tsx
+    │   │       │       └── URLTableSkeleton.tsx
     │   │       ├── hooks
     │   │       │   └── useURLs.ts
     │   │       ├── store

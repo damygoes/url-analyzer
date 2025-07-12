@@ -7,8 +7,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Icon } from '@/components/ui/icon/Icon';
+import { URLTable } from '@/features/urls/components/url-table/URLTable';
 import { URLFilters } from '@/features/urls/components/URLFilters';
-import { URLTable } from '@/features/urls/components/URLTable';
 import type { URLWithResult } from '@/shared/types/api';
 
 export function URLTableSection({
