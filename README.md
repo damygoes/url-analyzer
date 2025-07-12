@@ -117,8 +117,8 @@ A full-stack web application for crawling and analyzing websites. It detects bro
     │   │   │   ├── AppName.tsx
     │   │   │   ├── Header.tsx
     │   │   │   ├── RootLayout.tsx
-    │   │   │   ├── Sidebar.tsx
     │   │   │   └── sidebar
+    │   │   │       ├── Sidebar.tsx
     │   │   │       ├── SidebarCollapseToggle.tsx
     │   │   │       ├── SidebarMobileHeader.tsx
     │   │   │       └── SidebarNavLinks.tsx

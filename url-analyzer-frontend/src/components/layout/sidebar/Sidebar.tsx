@@ -1,9 +1,12 @@
+import type { IconName } from '@/components/ui/icon/iconMapping';
 import { LogoutButton } from '@/features/auth/components/LogoutButton';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import type { IconName } from '../ui/icon/iconMapping';
-import { SidebarMobileHeader } from './sidebar/SidebarMobileHeader';
-import { SidebarNavLinks } from './sidebar/SidebarNavLinks';
+import { SidebarMobileHeader } from './SidebarMobileHeader';
+import { SidebarNavLinks } from './SidebarNavLinks';
+
+
+
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'dashboard' as IconName },
