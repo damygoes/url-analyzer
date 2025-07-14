@@ -27,7 +27,7 @@ services:
       - DB_USER=root
       - DB_PASSWORD=rootpassword
       - DB_NAME=url_analyzer
-      - API_KEY=your-secure-api-key-here
+      - API_KEY=test-api-key-12345
       - PORT=8000
     depends_on:
       mysql:

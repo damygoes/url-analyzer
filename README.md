@@ -287,7 +287,7 @@ docker-compose up --build
 
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000
-- Default API Key: your-secure-api-key-here (set in docker-compose.yml)
+- Default API Key: `test-api-key-12345` (already set in `docker-compose.yml`)
 
 ## 💻 Local Development (without Docker)
 
@@ -362,7 +362,7 @@ go test -cover ./...
 All requests must include:
 
 ```http
-Authorization: your-secure-api-key-here
+Authorization: test-api-key-12345
 ```
 
 ### API Endpoints
