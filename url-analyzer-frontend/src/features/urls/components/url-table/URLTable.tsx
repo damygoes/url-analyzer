@@ -3,6 +3,7 @@ import { useURLAnalysisStore } from '@/features/url-analysis/store/urlAnalysisSt
 import { useURLStore } from '@/features/urls/store/urlStore';
 import type { URLWithResult } from '@/shared/types/api';
 import { SortOrder, URLSortField } from '@/shared/types/api';
+import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PaginationControls } from './PaginationControls';
 import { URLTableEmptyState } from './URLTableEmptyState';
@@ -23,15 +24,14 @@ interface URLTableProps {
 
 export function URLTable({ data, isLoading, pagination }: URLTableProps) {
   const navigate = useNavigate();
-  const {
-    selectedURLs,
-    toggleSelection,
-    selectAll,
-    clearSelection,
-    filters,
-    setFilters,
-  } = useURLStore();
-  const { analyzingIDs } = useURLAnalysisStore();
+  const selectedURLs = useURLStore((s) => s.selectedURLs);
+  const toggleSelection = useURLStore((s) => s.toggleSelection);
+  const selectAll = useURLStore((s) => s.selectAll);
+  const clearSelection = useURLStore((s) => s.clearSelection);
+  const filters = useURLStore((s) => s.filters);
+  const setFilters = useURLStore((s) => s.setFilters);
+
+  const analyzingIDs = useURLAnalysisStore((s) => s.analyzingIDs);
 
   const handleSort = (field: URLSortField) => {
     if (filters.sort_by === field) {
@@ -47,9 +47,15 @@ export function URLTable({ data, isLoading, pagination }: URLTableProps) {
     }
   };
 
-  const isAllSelected =
-    data.length > 0 && data.every((url) => selectedURLs.includes(url.id));
-  const isSomeSelected = data.some((url) => selectedURLs.includes(url.id));
+  const isAllSelected = useMemo(
+    () => data.length > 0 && data.every((url) => selectedURLs.includes(url.id)),
+    [data, selectedURLs]
+  );
+
+  const isSomeSelected = useMemo(
+    () => data.some((url) => selectedURLs.includes(url.id)),
+    [data, selectedURLs]
+  );
 
   const handleSelectAll = () => {
     if (isAllSelected) {
@@ -58,6 +64,20 @@ export function URLTable({ data, isLoading, pagination }: URLTableProps) {
       selectAll(data.map((url) => url.id));
     }
   };
+
+  const handleRowClick = useCallback(
+    (id: number) => {
+      navigate(`/urls/${id}`);
+    },
+    [navigate]
+  );
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setFilters({ page });
+    },
+    [setFilters]
+  );
 
   if (isLoading) return <URLTableSkeleton />;
 
@@ -83,7 +103,7 @@ export function URLTable({ data, isLoading, pagination }: URLTableProps) {
                 isSelected={selectedURLs.includes(url.id)}
                 onToggleSelect={toggleSelection}
                 isDisabled={analyzingIDs.includes(url.id)}
-                onRowClick={(id) => navigate(`/urls/${id}`)}
+                onRowClick={() => handleRowClick(url.id)}
               />
             ))}
           </TableBody>
@@ -95,7 +115,7 @@ export function URLTable({ data, isLoading, pagination }: URLTableProps) {
         pageSize={pagination.pageSize}
         total={pagination.total}
         totalPages={pagination.totalPages}
-        onPageChange={(page) => setFilters({ page })}
+        onPageChange={handlePageChange}
       />
     </div>
   );

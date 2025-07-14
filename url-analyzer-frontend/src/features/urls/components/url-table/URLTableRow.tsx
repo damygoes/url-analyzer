@@ -4,6 +4,7 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { URLCrawlStatusCell } from '@/features/url-analysis/components/URLCrawlStatusCell';
 import { cn } from '@/lib/utils';
 import type { URLWithResult } from '@/shared/types/api';
+import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
 interface URLTableRowProps {
@@ -11,7 +12,7 @@ interface URLTableRowProps {
   isSelected: boolean;
   onToggleSelect: (id: number) => void;
   isDisabled: boolean;
-  onRowClick: (id: number) => void;
+  onRowClick: () => void;
 }
 
 export function URLTableRow({
@@ -21,15 +22,26 @@ export function URLTableRow({
   isDisabled,
   onRowClick,
 }: URLTableRowProps) {
+  const result = url.crawl_result;
+
+  const handleToggle = useCallback(() => {
+    onToggleSelect(url.id);
+  }, [onToggleSelect, url.id]);
+
+  const stopClickPropagation = useCallback(
+    (e: React.MouseEvent) => e.stopPropagation(),
+    []
+  );
+
   return (
     <TableRow
       className={cn('cursor-pointer', isSelected && 'bg-muted/50')}
-      onClick={() => onRowClick(url.id)}
+      onClick={onRowClick}
     >
-      <TableCell onClick={(e) => e.stopPropagation()}>
+      <TableCell onClick={stopClickPropagation}>
         <Checkbox
           checked={isSelected}
-          onCheckedChange={() => onToggleSelect(url.id)}
+          onCheckedChange={handleToggle}
           disabled={isDisabled}
         />
       </TableCell>
@@ -38,16 +50,16 @@ export function URLTableRow({
         <URLCrawlStatusCell url={url} />
       </TableCell>
       <TableCell className="max-w-xs truncate">
-        {url.crawl_result?.title || '-'}
+        {result?.title ?? '-'}
       </TableCell>
       <TableCell className="text-center">
-        {url.crawl_result?.html_version || '-'}
+        {result?.html_version ?? '-'}
       </TableCell>
       <TableCell className="text-center">
-        {url.crawl_result?.internal_links ?? '-'}
+        {result?.internal_links ?? '-'}
       </TableCell>
       <TableCell className="text-center">
-        {url.crawl_result?.external_links ?? '-'}
+        {result?.external_links ?? '-'}
       </TableCell>
       <TableCell className="text-center">
         <span
@@ -58,7 +70,7 @@ export function URLTableRow({
               : ''
           )}
         >
-          {url.crawl_result?.broken_links_count ?? '-'}
+          {result?.broken_links_count ?? '-'}
         </span>
       </TableCell>
       <TableCell onClick={(e) => e.stopPropagation()}>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -11,13 +11,13 @@ import {
 } from '@/components/ui/tooltip';
 import { pluralize } from '@/shared/utils/pluralize';
 
-import { useURLAnalysisStore } from '@/features/url-analysis/store/urlAnalysisStore';
 import {
   useRestartCrawlingURLs,
   useStartCrawlingURLs,
   useStopCrawlingURLs,
 } from '@/features/urls/hooks/useURLs';
 
+import { useURLAnalysisStore } from '@/features/url-analysis/store/urlAnalysisStore';
 import { getErrorMessage } from '@/shared/utils/getErrorMessage';
 import { toast } from 'sonner';
 
@@ -34,59 +34,70 @@ export function BulkActionsCard({
   const restartCrawling = useRestartCrawlingURLs();
   const stopCrawling = useStopCrawlingURLs();
 
-  const { setAnalyzingIDs, analyzingIDs } = useURLAnalysisStore();
+  const analyzingIDs = useURLAnalysisStore((s) => s.analyzingIDs);
+  const addAnalyzingIDs = useURLAnalysisStore((s) => s.addAnalyzingIDs);
+  const removeAnalyzingIDs = useURLAnalysisStore((s) => s.removeAnalyzingIDs);
+
   const [error, setError] = useState<Error | null>(null);
 
-  const isLoading =
-    startCrawling.isPending ||
-    restartCrawling.isPending ||
-    stopCrawling.isPending;
+  const isLoading = useMemo(
+    () =>
+      startCrawling.isPending ||
+      restartCrawling.isPending ||
+      stopCrawling.isPending,
+    [startCrawling.isPending, restartCrawling.isPending, stopCrawling.isPending]
+  );
 
-  const areAllAnalyzing =
-    selectedIDs.length > 0 &&
-    selectedIDs.every((id) => analyzingIDs.includes(id));
+  const areAllAnalyzing = useMemo(
+    () =>
+      selectedIDs.length > 0 &&
+      selectedIDs.every((id) => analyzingIDs.includes(id)),
+    [selectedIDs, analyzingIDs]
+  );
 
-  const isAnyAnalyzing = selectedIDs.some((id) => analyzingIDs.includes(id));
+  const isAnyAnalyzing = useMemo(
+    () => selectedIDs.some((id) => analyzingIDs.includes(id)),
+    [selectedIDs, analyzingIDs]
+  );
 
-  const handleStart = async () => {
+  const handleStart = useCallback(async () => {
     try {
       setError(null);
       await Promise.all(selectedIDs.map((id) => startCrawling.mutateAsync(id)));
-      setAnalyzingIDs([...new Set([...analyzingIDs, ...selectedIDs])]);
+      addAnalyzingIDs(selectedIDs);
       toast.success(`${selectedIDs.length} URLs started for analysis`, {
         position: 'top-right',
       });
     } catch (e) {
       setError(new Error(getErrorMessage(e)));
     }
-  };
+  }, [selectedIDs, startCrawling, addAnalyzingIDs]);
 
-  const handleRestart = async () => {
+  const handleRestart = useCallback(async () => {
     try {
       setError(null);
       await restartCrawling.mutateAsync(selectedIDs);
-      setAnalyzingIDs([...new Set([...analyzingIDs, ...selectedIDs])]);
+      addAnalyzingIDs(selectedIDs);
       toast.success(`${selectedIDs.length} URLs restarted for analysis`, {
         position: 'top-right',
       });
     } catch (e) {
       setError(new Error(getErrorMessage(e)));
     }
-  };
+  }, [selectedIDs, restartCrawling, addAnalyzingIDs]);
 
-  const handleStop = async () => {
+  const handleStop = useCallback(async () => {
     try {
       setError(null);
       await stopCrawling.mutateAsync(selectedIDs);
-      // Remove stopped URLs from analyzingIDs
-      setAnalyzingIDs(analyzingIDs.filter((id) => !selectedIDs.includes(id)));
+      removeAnalyzingIDs(selectedIDs);
       toast.success(`${selectedIDs.length} URLs stopped from analysis`, {
         position: 'top-right',
       });
     } catch (e) {
       setError(new Error(getErrorMessage(e)));
     }
-  };
+  }, [selectedIDs, stopCrawling, removeAnalyzingIDs]);
 
   return (
     <Card className="py-0">

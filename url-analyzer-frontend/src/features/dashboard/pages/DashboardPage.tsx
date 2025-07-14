@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { AddURLDialog } from '@/features/urls/components/AddURLDialog';
 import { useDeleteURLs, useURLs } from '@/features/urls/hooks/useURLs';
@@ -19,7 +19,9 @@ export function DashboardPage() {
 
   const { analyzingIDs } = useURLAnalysisStore();
 
-  const { selectedURLs, filters, clearSelection } = useURLStore();
+  const selectedURLs = useURLStore((s) => s.selectedURLs);
+  const filters = useURLStore((s) => s.filters);
+  const clearSelection = useURLStore((s) => s.clearSelection);
 
   const { data, isLoading, error } = useURLs(filters);
 
@@ -30,12 +32,20 @@ export function DashboardPage() {
 
   const selectedCount = selectedURLs.length;
 
-  const title = `Delete ${selectedCount} ${pluralize(selectedCount, 'URL')}?`;
-  const description = `This action cannot be undone. Are you sure you want to permanently delete ${
-    selectedCount === 1 ? 'this' : 'these'
-  } ${pluralize(selectedCount, 'URL')}?`;
+  const title = useMemo(
+    () => `Delete ${selectedCount} ${pluralize(selectedCount, 'URL')}?`,
+    [selectedCount]
+  );
 
-  const handleConfirmDelete = async () => {
+  const description = useMemo(
+    () =>
+      `This action cannot be undone. Are you sure you want to permanently delete ${
+        selectedCount === 1 ? 'this' : 'these'
+      } ${pluralize(selectedCount, 'URL')}?`,
+    [selectedCount]
+  );
+
+  const handleConfirmDelete = useCallback(async () => {
     try {
       await deleteURLs.mutateAsync(selectedURLs);
       clearSelection();
@@ -51,7 +61,7 @@ export function DashboardPage() {
         position: 'top-right',
       });
     }
-  };
+  }, [deleteURLs, selectedURLs, clearSelection, selectedCount]);
 
   return (
     <div className="space-y-6">

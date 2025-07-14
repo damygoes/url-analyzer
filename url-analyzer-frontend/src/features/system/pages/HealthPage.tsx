@@ -1,19 +1,40 @@
+import { useMemo } from 'react';
+
 import { ActiveJobsCard } from '../components/ActiveJobsCard';
 import { CrawlerConfigCard } from '../components/CrawlerConfigCard';
-import { DatabaseErrorAlert } from '../components/DatabaseErrorAlert';
 import { DatabaseStatsCard } from '../components/DatabaseStatsCard';
+import { HealthErrorState } from '../components/HealthErrorState';
 import { HealthPageSkeleton } from '../components/HealthPageSkeleton';
-import { SystemStatusCard } from '../components/SystemStatusCard';
 import { useHealth, useStats } from '../hooks/useSystem';
+import { HealthStatusSection } from '../sections/HealthStatusSection';
 
 export function HealthPage() {
-  const { data: health, isLoading: healthLoading } = useHealth();
-  const { data: stats, isLoading: statsLoading } = useStats();
+  const {
+    data: health,
+    isLoading: healthLoading,
+    error: healthError,
+  } = useHealth();
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    error: statsError,
+  } = useStats();
 
-  const isLoading = healthLoading || statsLoading;
+  const isLoading = useMemo(
+    () => healthLoading || statsLoading,
+    [healthLoading, statsLoading]
+  );
+  const hasError = useMemo(
+    () => healthError || statsError,
+    [healthError, statsError]
+  );
 
   if (isLoading) {
     return <HealthPageSkeleton />;
+  }
+
+  if (hasError || !health || !stats) {
+    return <HealthErrorState />;
   }
 
   return (
@@ -25,28 +46,12 @@ export function HealthPage() {
         </p>
       </div>
 
-      {health && (
-        <SystemStatusCard
-          status={health.status}
-          database={health.database}
-          memory_mb={health.memory_mb}
-          goroutines={health.goroutines}
-          uptime={health.uptime}
-          version={health.version}
-        />
-      )}
+      <HealthStatusSection health={health} />
 
-      {stats && (
-        <>
-          <DatabaseStatsCard stats={stats.database} />
-          <CrawlerConfigCard config={stats.crawler} />
-          {stats.active_jobs > 0 && <ActiveJobsCard jobs={stats.jobs_detail} />}
-        </>
-      )}
+      <DatabaseStatsCard stats={stats.database} />
+      <CrawlerConfigCard config={stats.crawler} />
 
-      {health?.database_error && (
-        <DatabaseErrorAlert error={health.database_error} />
-      )}
+      {stats.active_jobs > 0 && <ActiveJobsCard jobs={stats.jobs_detail} />}
     </div>
   );
 }

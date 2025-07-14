@@ -1,3 +1,6 @@
+import { Search, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -7,35 +10,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
 import { useURLStore } from '@/features/urls/store/urlStore';
 import { useDebounce } from '@/hooks/useDebounce';
 import { URLStatus } from '@/shared/types/api';
-import { Search, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { PageSizeOptions } from './url-table/PageSizeOptions';
 
 export function URLFilters() {
   const { filters, setFilters, resetFilters } = useURLStore();
+
   const [searchInput, setSearchInput] = useState(filters.search || '');
   const debouncedSearch = useDebounce(searchInput, 300);
 
+  // Sync debounced search with filters
   useEffect(() => {
-    setFilters({ search: debouncedSearch, page: 1 });
+    setFilters({ search: debouncedSearch || undefined, page: 1 });
   }, [debouncedSearch, setFilters]);
 
-  const handleStatusChange = (value: string) => {
-    if (value === 'all') {
-      setFilters({ status: undefined, page: 1 });
-    } else {
-      setFilters({ status: value as URLStatus, page: 1 });
-    }
-  };
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchInput(e.target.value);
+    },
+    []
+  );
 
-  const handleReset = () => {
+  const handleStatusChange = useCallback(
+    (value: string) => {
+      const status = value === 'all' ? undefined : (value as URLStatus);
+      setFilters({ status, page: 1 });
+    },
+    [setFilters]
+  );
+
+  const handlePageSizeChange = useCallback(
+    (value: string) => {
+      setFilters({ page_size: Number(value), page: 1 });
+    },
+    [setFilters]
+  );
+
+  const handleReset = useCallback(() => {
     setSearchInput('');
     resetFilters();
-  };
+  }, [resetFilters]);
 
-  const hasActiveFilters = filters.status || filters.search;
+  const hasActiveFilters = useMemo(
+    () => Boolean(filters.search || filters.status),
+    [filters.search, filters.status]
+  );
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -45,7 +67,7 @@ export function URLFilters() {
           <Input
             placeholder="Search URLs..."
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={handleSearchChange}
             className="pl-9"
           />
         </div>
@@ -80,19 +102,14 @@ export function URLFilters() {
       </div>
 
       <Select
-        value={filters.page_size?.toString() || '10'}
-        onValueChange={(value) =>
-          setFilters({ page_size: Number(value), page: 1 })
-        }
+        value={(filters.page_size ?? 10).toString()}
+        onValueChange={handlePageSizeChange}
       >
         <SelectTrigger className="w-[100px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="10">10 rows</SelectItem>
-          <SelectItem value="25">25 rows</SelectItem>
-          <SelectItem value="50">50 rows</SelectItem>
-          <SelectItem value="100">100 rows</SelectItem>
+          <PageSizeOptions />
         </SelectContent>
       </Select>
     </div>
