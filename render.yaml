@@ -15,9 +15,9 @@ services:
       - key: DB_USER
         value: analyzer_user
       - key: DB_PASSWORD
-        value: b2ynvPbssSwq3RAChuTmLVPUb2LCSxDq
+        sync: false
       - key: API_KEY
-        value: test-api-key-12345
+        sync: false
       - key: SERVER_PORT
         value: 8000
 
@@ -30,8 +30,3 @@ services:
     envVars:
       - key: VITE_API_URL
         value: https://url-analyzer-backend.onrender.com
-
-  - type: pserv
-    name: mysql
-    env: docker
-    plan: free
