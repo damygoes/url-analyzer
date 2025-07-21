@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: url-analyzer-backend
+    env: docker
+    plan: free
+    repo: https://github.com/damygoes/url-analyzer
+    dockerfilePath: ./url-analyzer-backend/Dockerfile
+    envVars:
+      - key: DB_HOST
+        value: dpg-d1v86gumcj7s73f5ofp0-a
+      - key: DB_PORT
+        value: 5432
+      - key: DB_NAME
+        value: url_analyzer
+      - key: DB_USER
+        value: analyzer_user
+      - key: DB_PASSWORD
+        value: b2ynvPbssSwq3RAChuTmLVPUb2LCSxDq
+      - key: API_KEY
+        value: test-api-key-12345
+      - key: SERVER_PORT
+        value: 8000
+
+  - type: web
+    name: url-analyzer-frontend
+    env: docker
+    plan: free
+    repo: https://github.com/damygoes/url-analyzer
+    dockerfilePath: ./url-analyzer-frontend/Dockerfile.dev
+    envVars:
+      - key: VITE_API_URL
+        value: https://url-analyzer-backend.onrender.com
+
+  - type: pserv
+    name: mysql
+    env: docker
+    plan: free
