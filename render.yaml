@@ -1,55 +1,42 @@
-version: "3.9"
-
 services:
-  frontend:
-    build:
-      context: ./url-analyzer-frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    networks:
-      - url-analyzer-network
+  - type: web
+    name: url-analyzer-backend
+    env: docker
+    plan: free
+    dockerfilePath: ./url-analyzer-backend/Dockerfile
+    dockerContext: ./url-analyzer-backend
+    envVars:
+      - key: DB_HOST
+        value: url-analyzer-mysql
+      - key: DB_PORT
+        value: 3306
+      - key: DB_USER
+        value: root
+      - key: DB_PASSWORD
+        value: rootpassword
+      - key: DB_NAME
+        value: url_analyzer
+      - key: API_KEY
+        value: test-api-key-12345
+      - key: PORT
+        value: 8000
+    healthCheckPath: /api/health
 
-  backend:
-    build:
-      context: ./url-analyzer-backend
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    environment:
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_USER=root
-      - DB_PASSWORD=rootpassword
-      - DB_NAME=url_analyzer
-      - API_KEY=test-api-key-12345
-      - PORT=8000
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - url-analyzer-network
-
-  mysql:
-    image: mysql:8.0
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=url_analyzer
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./url-analyzer-backend/migrations:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-    networks:
-      - url-analyzer-network
-
-volumes:
-  mysql_data:
-
-networks:
-  url-analyzer-network:
-    driver: bridge
+  - type: web
+    name: url-analyzer-frontend
+    env: docker
+    plan: free
+    dockerfilePath: ./url-analyzer-frontend/Dockerfile
+    dockerContext: ./url-analyzer-frontend
+    envVars:
+      - key: VITE_API_URL
+        value: https://url-analyzer-backend.onrender.com/api
+    buildFilter:
+      paths:
+        - url-analyzer-frontend/**
+  
+databases:
+  - name: url-analyzer-mysql
+    plan: free
+    databaseName: url_analyzer
+    user: root
