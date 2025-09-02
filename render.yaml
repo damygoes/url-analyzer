@@ -7,15 +7,25 @@ services:
     dockerContext: ./url-analyzer-backend
     envVars:
       - key: DB_HOST
-        value: url-analyzer-mysql
+        fromDatabase:
+          name: url-analyzer-mysql
+          property: host
       - key: DB_PORT
-        value: 3306
+        fromDatabase:
+          name: url-analyzer-mysql
+          property: port
       - key: DB_USER
-        value: root
+        fromDatabase:
+          name: url-analyzer-mysql
+          property: user
       - key: DB_PASSWORD
-        value: rootpassword
+        fromDatabase:
+          name: url-analyzer-mysql
+          property: password
       - key: DB_NAME
-        value: url_analyzer
+        fromDatabase:
+          name: url-analyzer-mysql
+          property: database
       - key: API_KEY
         value: test-api-key-12345
       - key: PORT
@@ -34,9 +44,8 @@ services:
     buildFilter:
       paths:
         - url-analyzer-frontend/**
-  
+
 databases:
   - name: url-analyzer-mysql
     plan: free
     databaseName: url_analyzer
-    user: root
